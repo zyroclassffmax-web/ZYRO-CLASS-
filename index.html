@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Free Fire Tournament</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: #ffffff;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+        .heading-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+        }
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+        .gold-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        .gold-card:hover {
+            border: 1px solid rgba(234, 179, 8, 0.8);
+            box-shadow: 0 12px 30px rgba(234, 179, 8, 0.1);
+            transform: translateY(-2px);
+        }
+        .match-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .match-card:hover {
+            border-color: rgba(234, 179, 8, 0.8);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        .category-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+        }
+        .category-overlay.active {
+            display: flex;
+        }
+        .category-overlay-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .match-list-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .match-list-item:hover {
+            border-color: rgba(234, 179, 8, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .match-card-started {
+            border: 2px solid #ef4444 !important;
+            box-shadow: 0 0 8px rgba(239,68,68,0.5);
+            animation: blinkRed 1s infinite;
+        }
+        .match-card-open {
+            border: 2px solid #22c55e !important;
+            box-shadow: 0 0 8px rgba(34,197,94,0.5);
+            animation: blinkGreen 1s infinite;
+        }
+        .match-card-locked-full {
+            border: 2px solid #64748b !important;
+            box-shadow: 0 0 10px rgba(100, 116, 139, 0.4);
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+            position: relative;
+        }
+        @keyframes blinkRed {
+            0% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.3); }
+            50% { border-color: #ff7777; box-shadow: 0 0 12px rgba(239,68,68,0.8); }
+            100% { border-color: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.3); }
+        }
+        @keyframes blinkGreen {
+            0% { border-color: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.3); }
+            50% { border-color: #4ade80; box-shadow: 0 0 12px rgba(34,197,94,0.8); }
+            100% { border-color: #22c55e; box-shadow: 0 0 4px rgba(34,197,94,0.3); }
+        }
+        
+        .deposit-btn-new, .withdraw-btn-new {
+            position: relative;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #ffffff !important;
+            color: #1e293b !important;
+        }
+        .deposit-btn-new:hover, .withdraw-btn-new:hover {
+            transform: translateY(-2px);
+        }
+        .deposit-btn-new .bg-logo, .withdraw-btn-new .bg-logo {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 3rem;
+            opacity: 0.05;
+            pointer-events: none;
+            color: #1e293b;
+        }
+        
+        .pending-lock-container {
+            position: relative;
+        }
+        .pending-blur-target {
+            filter: blur(4px);
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .pending-unblurred-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            pointer-events: auto;
+        }
+        
+        .pending-text {
+            color: #ef4444;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            animation: textBlink 1s infinite;
+            letter-spacing: 0.05em;
+        }
+        @keyframes textBlink {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; text-shadow: 0 0 4px rgba(239, 68, 68, 0.4); }
+            100% { opacity: 0.6; }
+        }
+        .countdown-timer {
+            font-size: 8px;
+            color: #d97706;
+            font-family: monospace;
+            font-weight: bold;
+            margin-top: 1px;
+        }
+        .tooltip-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 12px;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+            border-left: 4px solid #f59e0b;
+            max-width: 90%;
+            text-align: center;
+        }
+        .tooltip-popup button {
+            background: none;
+            border: none;
+            color: #facc15;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #catCard-clash_squad {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%), url('https://ibb.co/yBMCJZyM/clash-squad-ff.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #catCard-classic_bermuda {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%), url('https://ibb.co/LzQbynnZ/bermuda-ff.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #catCard-lone_wolf {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%), url('https://ibb.co/JwyGd1hD/lone-wolf-ff.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        #catCard-history_terminal {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%), url('https://ibb.co/Z6X9Vst4/history-ff.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+        @keyframes rgbGlowEffect {
+            0% { text-shadow: 0 0 5px rgba(234,179,8,0.2); }
+            50% { text-shadow: 0 0 8px rgba(234,179,8,0.4); }
+            100% { text-shadow: 0 0 5px rgba(234,179,8,0.2); }
+        }
+        .rgb-glow-text {
+            animation: rgbGlowEffect 4s infinite linear;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #eab308;
+            border-radius: 3px;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: blink-dot 1.2s infinite cubic-bezier(0.66, 0, 0, 1);
+        }
+        @keyframes blink-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes marquee {
+            0% { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+        .marquee-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+        }
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+        }
+        .modal-card {
+            animation: modalSlideIn 0.25s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: scale(0.96) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .rules-effect {
+            animation: rulesPop 0.3s ease-out;
+        }
+        @keyframes rulesPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .pulse-glow {
+            animation: softGlow 2s infinite ease-in-out;
+        }
+        @keyframes softGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.5); }
+        }
+        
+        #matchDetailModal { z-index: 1000 !important; }
+        #mdlLeaderboard { z-index: 4000 !important; }
+        #mdlBannedPlayersHub { z-index: 4000 !important; }
+        #rulesModal { z-index: 4000 !important; }
+        #mdlRules { z-index: 4000 !important; }
+        #mdlJoinMatch { z-index: 2000 !important; }
+        #mdlLobbySlotSelectionMatrixBoard { z-index: 3000 !important; }
+
+        .slot-node-cell {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.65rem;
+            padding: 0.65rem;
+            min-height: 85px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .slot-node-cell.occupied-locked {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            cursor: not-allowed;
+        }
+        .slot-node-cell.selected {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-white">
+
+    <audio id="tringAudio" src="https://assets.mixkit.co/active_storage/sfx/911/911-84.wav" preload="auto"></audio>
+
+    <div id="networkInterruptionBlocker" class="fixed inset-0 z-[9999] bg-white/95 hidden flex flex-col items-center justify-center p-6 text-center select-none backdrop-blur-sm">
+        <div class="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+        <h2 class="heading-font text-xl md:text-2xl font-extrabold tracking-wider text-slate-800 uppercase">Connection Interrupted</h2>
+        <p class="text-xs text-slate-500 max-w-sm mt-2 leading-relaxed font-semibold">Your network connection is offline or too slow. Please check your internet settings to restore access to the tournament terminal.</p>
+    </div>
+
+    <div id="customNotification" class="fixed top-5 left-1/2 transform -translate-x-1/2 z-[9999] max-w-md w-11/12 glass-panel p-4 rounded-xl hidden flex items-start gap-3 border-l-4 border-yellow-500 transition-all duration-300">
+        <div id="notiIcon" class="text-yellow-500 text-xl mt-0.5"><i class="fas fa-info-circle"></i></div>
+        <div class="flex-1">
+            <h4 id="notiTitle" class="heading-font font-bold text-sm text-slate-800 tracking-wide">SYSTEM ALERT</h4>
+            <p id="notiMessage" class="text-xs text-slate-600 mt-1 font-medium"></p>
+        </div>
+        <button onclick="closeNotification()" class="text-slate-400 hover:text-slate-800 transition-colors text-sm"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div id="maintenanceOverlayBlock" class="fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-xl hidden flex flex-col items-center justify-center p-6 text-center select-none">
+        <div class="w-full max-w-md bg-white/90 p-8 rounded-2xl shadow-2xl border border-amber-500/30 pulse-glow transform transition-all duration-300">
+            <div class="w-24 h-24 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center text-5xl mx-auto mb-6 border border-amber-500/20 animate-bounce">
+                <i class="fas fa-tools"></i>
+            </div>
+            <h1 class="heading-font text-2xl md:text-3xl font-extrabold tracking-wider text-slate-800 uppercase">Maintenance Modus</h1>
+            <p class="text-sm text-slate-600 max-w-md mx-auto mt-3 leading-relaxed font-semibold">
+                Sme Robot systems are currently updating backend nodes and tuning combat matching filters. Access will be fully restored shortly.
+            </p>
+            <div class="mt-6 p-3 bg-amber-50 rounded-xl text-xs text-amber-700 font-bold tracking-wide flex items-center justify-center gap-2 border border-amber-500/20">
+                <span class="live-dot"></span> REALTIME PIPELINES HALTED BY ADMIN
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH CONTAINER: LOGIN / REGISTER -->
+    <div id="authContainer" class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-md glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden bg-white/90">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-500/5 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-purple-600/5 rounded-full blur-2xl"></div>
+            
+            <div class="text-center mb-8">
+                <h1 class="heading-font text-3xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-amber-600">ZYRO CLASS TOURNAMENT</h1>
+                <p class="text-xs uppercase tracking-widest text-slate-500 font-semibold mt-1">GARENA FREE FIRE MAX TOURNAMENT</p>
+            </div>
+
+            <div id="loginFormBlock">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="heading-font text-lg font-bold text-slate-800"><i class="fas fa-sign-in-alt text-yellow-500 mr-2"></i>Account Login</h2>
+                    <span id="lblAdminAccessBadge" class="hidden text-[10px] uppercase bg-purple-500/20 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-500/30">Admin Node</span>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Email ID</label>
+                        <input type="email" id="loginEmail" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="player@sme.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Password</label>
+                        <input type="password" id="loginPass" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="••••••••">
+                    </div>
+                    <button onclick="executeLogin()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-2.5 rounded-lg text-sm tracking-wider uppercase transition-all shadow-md mt-2 heading-font">Login</button>
+                </div>
+                <p class="text-xs text-center text-slate-500 mt-6">New operative? <button onclick="toggleAuthViews(false)" class="text-yellow-600 font-bold hover:underline">Register Credentials</button></p>
+            </div>
+
+            <div id="registerFormBlock" class="hidden">
+                <h2 class="heading-font text-lg font-bold text-slate-800 mb-4"><i class="fas fa-user-plus text-purple-500 mr-2"></i>Create Operative Profile</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-0.5">User Name</label>
+                        <input type="text" id="regName" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Sme_Warrior">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-0.5">Email ID</label>
+                        <input type="email" id="regEmail" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="player@sme.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-0.5">Phone Number</label>
+                        <input type="tel" id="regPhone" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="Enter Phone Number">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase font-bold text-slate-500 mb-0.5">Password</label>
+                        <input type="password" id="regPass" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="••••••••">
+                    </div>
+                    <button onclick="executeRegistration()" class="w-full bg-gradient-to-r from-purple-600 to-yellow-600 hover:from-purple-500 hover:to-yellow-500 text-white font-bold py-2.5 rounded-lg text-sm tracking-wider uppercase transition-all shadow-md mt-2 heading-font">Generate Profile</button>
+                </div>
+                <p class="text-xs text-center text-slate-500 mt-5">Already registered? <button onclick="toggleAuthViews(true)" class="text-purple-600 font-bold hover:underline">Log In</button></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP WORKSPACE (HIDDEN UNTIL LOGIN) -->
+    <div id="appWorkspace" class="flex-1 flex flex-col hidden bg-gray-50">
+        
+        <header class="glass-panel sticky top-0 z-40 border-b border-gray-200 flex flex-col w-full">
+            <div class="px-4 py-2.5 flex justify-between items-center border-b border-gray-200">
+                <div class="flex items-center gap-2 cursor-pointer group" onclick="openProfileModal()">
+                    <div class="bg-gradient-to-br from-yellow-500 to-amber-600 w-8 h-8 rounded-lg flex items-center justify-center shadow-md">
+                        <i class="fas fa-gamepad text-white text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span id="headerUserName" class="heading-font font-bold text-sm tracking-wide text-slate-800 group-hover:text-yellow-600 transition-colors">Loading...</span>
+                            <span id="headerVerifiedBadge" class="hidden">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Twitter_Verified_Badge.svg" class="w-4 h-4 inline-block" alt="Verified">
+                            </span>
+                        </div>
+                        <span id="headerUserEmail" class="text-[10px] text-slate-500 block font-medium"></span>
+                    </div>
+                </div>
+
+                <div onclick="openSubscriptionModal()" class="gold-card px-3 py-1.5 rounded-lg cursor-pointer text-center max-w-[180px] transition-all flex flex-col justify-center items-end select-none group">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fas fa-gem text-yellow-500 text-xs animate-pulse"></i>
+                        <span id="lblHeaderSubStatus" class="heading-font font-bold text-xs text-yellow-600 uppercase tracking-wider group-hover:text-yellow-700 transition-colors">SUBSCRIPTION</span>
+                    </div>
+                    <span id="lblHeaderSubCountdown" class="text-[9px] text-slate-500 font-semibold block uppercase mt-0.5 tracking-tighter">VIEW PACKS</span>
+                </div>
+
+                <div id="btnAdminMaintenanceToggleConsole" class="hidden h-9 bg-gray-100 border border-purple-300 rounded-lg px-3 cursor-pointer flex items-center gap-2" onclick="toggleSystemMaintenanceModeState()">
+                    <i class="fas fa-hammer text-purple-600 text-xs"></i>
+                    <span id="lblMaintStatusIndicator" class="text-xs font-bold text-slate-600">Syncing...</span>
+                </div>
+            </div>
+
+            <div class="w-full grid grid-cols-2 text-center text-xs font-bold bg-white border-b border-gray-100">
+                <div class="pending-lock-container border-r border-gray-100">
+                    <div id="depositBtnBlurWrapper" class="px-4 py-3 cursor-pointer transition-all flex items-center justify-center gap-2.5 relative" onclick="openDepositModal()">
+                        <div class="bg-logo"><i class="fas fa-plus-circle"></i></div>
+                        <div class="text-left relative z-10">
+                            <p class="text-[8px] text-slate-400 uppercase tracking-widest font-bold">DEPOSIT WALLET</p>
+                            <p class="text-xs font-extrabold text-slate-800">₹ <span id="lblDepositBalance">0.00</span></p>
+                        </div>
+                    </div>
+                    <div id="depositPendingInfo" class="hidden pending-unblurred-content"></div>
+                </div>
+                
+                <div class="pending-lock-container">
+                    <div id="withdrawBtnBlurWrapper" class="px-4 py-3 cursor-pointer transition-all flex items-center justify-center gap-2.5 relative" onclick="openWithdrawalModal()">
+                        <div class="bg-logo"><i class="fas fa-hand-holding-usd"></i></div>
+                        <div class="text-left relative z-10">
+                            <p class="text-[8px] text-slate-400 uppercase tracking-widest font-bold">WIN BALANCE</p>
+                            <p class="text-xs font-extrabold text-slate-800">₹ <span id="lblWinBalance">0.00</span></p>
+                        </div>
+                    </div>
+                    <div id="withdrawPendingInfo" class="hidden pending-unblurred-content"></div>
+                </div>
+            </div>
+        </header>
+
+        <div id="marqueeContainer" class="w-full flex items-center border-b border-gray-200 overflow-hidden relative shrink-0 h-6 bg-amber-50">
+            <div id="marqueeText" class="marquee-content font-bold text-[11px] uppercase tracking-wider text-amber-600">
+                Welcome to Garena Free Fire Max Tournament System Terminal. Secure your match slots now. Join using valid configurations.
+            </div>
+        </div>
+
+        <main class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-6">
+            <section class="grid grid-cols-2 gap-4">
+                <div id="catCard-clash_squad" onclick="openCategoryOverlay('clash_squad')" class="gold-card p-4 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-300 min-h-[110px] flex flex-col justify-between group">
+                    <div class="absolute -right-3 -bottom-5 text-7xl text-yellow-500/10 group-hover:text-yellow-500/20 group-hover:scale-110 transition-all pointer-events-none">
+                        <i class="fas fa-crosshairs"></i>
+                    </div>
+                    <div class="w-full flex justify-between items-start z-10">
+                        <span class="p-2 rounded-lg bg-yellow-500/20 text-yellow-600 text-sm"><i class="fas fa-crosshairs"></i></span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="catIndicator-clash_squad" class="live-dot hidden"></span>
+                            <span id="catCounter-clash_squad" class="text-xs bg-white/80 text-slate-700 font-extrabold px-2 py-0.5 rounded border border-gray-200">0</span>
+                        </div>
+                    </div>
+                    <h3 class="z-10 heading-font font-bold text-sm tracking-widest uppercase mt-3 text-slate-800 rgb-glow-text">Clash Squad</h3>
+                </div>
+
+                <div id="catCard-classic_bermuda" onclick="openCategoryOverlay('classic_bermuda')" class="gold-card p-4 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-300 min-h-[110px] flex flex-col justify-between group">
+                    <div class="absolute -right-3 -bottom-5 text-7xl text-purple-500/10 group-hover:text-purple-500/20 group-hover:scale-110 transition-all pointer-events-none">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="w-full flex justify-between items-start z-10">
+                        <span class="p-2 rounded-lg bg-purple-500/20 text-purple-600 text-sm"><i class="fas fa-map-marked-alt"></i></span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="catIndicator-classic_bermuda" class="live-dot hidden"></span>
+                            <span id="catCounter-classic_bermuda" class="text-xs bg-white/80 text-slate-700 font-extrabold px-2 py-0.5 rounded border border-gray-200">0</span>
+                        </div>
+                    </div>
+                    <h3 class="z-10 heading-font font-bold text-sm tracking-widest uppercase mt-3 text-slate-800 rgb-glow-text">Classic Bermuda</h3>
+                </div>
+
+                <div id="catCard-lone_wolf" onclick="openCategoryOverlay('lone_wolf')" class="gold-card p-4 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-300 min-h-[110px] flex flex-col justify-between group">
+                    <div class="absolute -right-3 -bottom-5 text-7xl text-amber-500/10 group-hover:text-amber-500/20 group-hover:scale-110 transition-all pointer-events-none">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="w-full flex justify-between items-start z-10">
+                        <span class="p-2 rounded-lg bg-amber-500/20 text-amber-600 text-sm"><i class="fas fa-shield-alt"></i></span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="catIndicator-lone_wolf" class="live-dot hidden"></span>
+                            <span id="catCounter-lone_wolf" class="text-xs bg-white/80 text-slate-700 font-extrabold px-2 py-0.5 rounded border border-gray-200">0</span>
+                        </div>
+                    </div>
+                    <h3 class="z-10 heading-font font-bold text-sm tracking-widest uppercase mt-3 text-slate-800 rgb-glow-text">Lone Wolf Mode</h3>
+                </div>
+
+                <div id="catCard-history_terminal" onclick="openCategoryOverlay('history_terminal')" class="gold-card p-4 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-300 min-h-[110px] flex flex-col justify-between group">
+                    <div class="absolute -right-3 -bottom-5 text-7xl text-emerald-500/10 group-hover:text-emerald-500/20 group-hover:scale-110 transition-all pointer-events-none">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="w-full flex justify-between items-start z-10">
+                        <span class="p-2 rounded-lg bg-emerald-500/20 text-emerald-600 text-sm"><i class="fas fa-trophy"></i></span>
+                        <div class="flex items-center gap-1.5">
+                            <span id="catCounter-history_terminal" class="text-xs bg-white/80 text-slate-700 font-extrabold px-2 py-0.5 rounded border border-gray-200">0</span>
+                        </div>
+                    </div>
+                    <h3 class="z-10 heading-font font-bold text-sm tracking-widest uppercase mt-3 text-slate-800 rgb-glow-text">MATCH HISTORY</h3>
+                </div>
+            </section>
+        </main>
+
+        <div id="fiveMinuteAlertPanel" class="w-full p-4 bg-gradient-to-r from-amber-100 via-gray-100 to-amber-100 border-t border-amber-300 shadow-lg hidden flex-col gap-3 z-40">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="live-dot"></span>
+                    <p class="text-xs uppercase tracking-widest font-bold text-slate-800 tracking-wide heading-font">LOBBY RECONNAISSANCE ALERT</p>
+                </div>
+                <div class="text-xs font-bold text-amber-600 bg-amber-100 px-2 py-0.5 border border-amber-300 rounded heading-font animate-pulse">
+                    TRACKING TIMERS ACTIVATED
+                </div>
+            </div>
+            
+            <div id="boxMultiLobbySelectorArea" class="hidden flex-col gap-2">
+                <p class="text-xs font-bold text-amber-600">Choice করুন আপনি কোন ম্যাচের ডিটেইলস দেখতে চান:</p>
+                <div id="containerMultiLobbyButtons" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div id="boxSingleLobbyDetailsArea" class="flex flex-col gap-2">
+                <p class="text-xs font-medium text-slate-600 -mt-1">Your registered tournament match starts inside 5 minutes! Room allocation matrix details deployed below:</p>
+                <div class="grid grid-cols-2 gap-2.5 text-center">
+                    <div class="bg-white border border-gray-200 rounded-lg p-2 flex justify-between items-center shadow-sm">
+                        <div class="text-left truncate">
+                            <p class="text-[8px] text-slate-500 uppercase font-bold">ALLOCATED ROOM ID</p>
+                            <p id="lblHiddenRoomId" class="text-xs font-bold text-amber-600 font-mono tracking-wider">-</p>
+                        </div>
+                        <div class="flex items-center justify-center ml-2">
+                            <button onclick="copyStringDataToClipboard('lblHiddenRoomId', 'Room ID')" class="bg-gray-100 hover:bg-amber-500 hover:text-white p-1.5 rounded text-slate-500 transition-colors text-xs">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-lg p-2 flex justify-between items-center shadow-sm">
+                        <div class="text-left truncate">
+                            <p class="text-[8px] text-slate-500 uppercase font-bold">ACCESS SECURITY PASS</p>
+                            <p id="lblHiddenRoomPass" class="text-xs font-bold text-amber-600 font-mono tracking-wider">-</p>
+                        </div>
+                        <div class="flex items-center justify-center ml-2">
+                            <button onclick="copyStringDataToClipboard('lblHiddenRoomPass', 'Password')" class="bg-gray-100 hover:bg-amber-500 hover:text-white p-1.5 rounded text-slate-500 transition-colors text-xs">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORY OVERLAY -->
+    <div id="categoryOverlay" class="category-overlay">
+        <div class="category-overlay-header">
+            <div class="flex items-center gap-3">
+                <button onclick="closeCategoryOverlay()" class="bg-gray-200 hover:bg-gray-300 text-slate-700 font-bold px-3 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all flex items-center gap-1">
+                    <i class="fas fa-arrow-left"></i> BACK
+                </button>
+                <h2 id="overlayTitle" class="heading-font font-bold text-sm tracking-widest text-slate-800 uppercase">ACTIVE LOBBIES</h2>
+            </div>
+        </div>
+        <div class="flex-1 max-w-2xl w-full mx-auto p-4">
+            <div id="categoryMatchListContainer" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- MATCH DETAIL MODAL -->
+    <div id="matchDetailModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-card w-full max-w-2xl glass-modal rounded-2xl overflow-hidden border border-yellow-500/30 shadow-2xl">
+            <div class="bg-gradient-to-r from-yellow-600 to-amber-600 px-5 py-3 flex justify-between items-center">
+                <h3 class="heading-font font-bold text-sm text-white tracking-wider uppercase">
+                    <i class="fas fa-door-open mr-2"></i> MATCH DETAILS TERMINAL
+                </h3>
+                <button onclick="closeMatchDetailModal()" class="text-white/80 hover:text-white text-xl leading-5 transition-all">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4 bg-white/95" id="matchDetailModalContent">
+            </div>
+        </div>
+    </div>
+
+    <!-- SLOT SELECTION MATRIX BOARD -->
+    <div id="mdlLobbySlotSelectionMatrixBoard" class="fixed inset-0 z-[1500] hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-card w-full max-w-lg glass-modal rounded-2xl overflow-hidden border border-amber-500/40 shadow-2xl">
+            <div class="bg-gradient-to-r from-amber-600 to-yellow-600 px-5 py-3 flex justify-between items-center">
+                <h3 class="heading-font font-bold text-sm text-white tracking-wider uppercase">
+                    <i class="fas fa-th mr-2"></i> SELECT LOBBY SLOT NUMBER
+                </h3>
+                <button onclick="closeSlotSelectionMatrixBoardModal()" class="text-white/80 hover:text-white text-xl leading-5 transition-all">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+            <div class="p-5 bg-white space-y-4">
+                <div class="p-2.5 bg-amber-50 rounded-lg text-xs font-semibold text-amber-800 border border-amber-200">
+                    Choose an empty slot allocation matrix node from the list before typing your operative name.
+                </div>
+                <div id="slotNodesGridAreaDisplay" class="grid grid-cols-3 gap-2.5 max-h-[380px] overflow-y-auto p-1 border border-gray-100 rounded-xl">
+                </div>
+                <div class="flex gap-2 pt-2 border-t border-gray-100 pt-3">
+                    <button onclick="closeSlotSelectionMatrixBoardModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-slate-800 font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all">Cancel</button>
+                    <button onclick="proceedFromSlotBoardToIgnForm()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all shadow-md">Select Slot & Proceed</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RULES MODAL -->
+    <div id="rulesModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+        <div class="modal-card w-full max-w-md glass-modal rounded-2xl overflow-hidden border border-yellow-500/30 shadow-2xl rules-effect">
+            <div class="bg-gradient-to-r from-purple-600 to-yellow-600 px-5 py-3 flex justify-between items-center">
+                <h3 class="heading-font font-bold text-sm text-white tracking-wider uppercase">
+                    <i class="fas fa-gavel mr-2"></i> MATCH RULES
+                </h3>
+                <button onclick="closeRulesModal()" class="text-white/80 hover:text-white text-xl leading-5 transition-all">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+            <div class="p-5 bg-white/95">
+                <div id="rulesModalContent" class="text-xs text-slate-700 leading-relaxed whitespace-pre-line bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-64 overflow-y-auto">
+                </div>
+                <button onclick="closeRulesModal()" class="w-full mt-4 bg-gray-200 hover:bg-gray-300 text-slate-800 font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUBSCRIPTION MODAL -->
+    <div id="mdlSubscriptionTerminal" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-md">
+        <div class="w-full max-w-lg glass-modal rounded-2xl p-6 relative border border-yellow-500/30">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-amber-600 tracking-wider uppercase"><i class="fas fa-gem mr-2"></i>PREMIUM VIP SUBSCRIPTION</h3>
+                <button onclick="closeSubscriptionModal()" class="text-slate-500 hover:text-slate-800"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="subLiveTrackingStateBox" class="hidden space-y-4"><div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center"><p class="heading-font text-sm font-bold text-amber-600 uppercase tracking-widest animate-pulse">SUBSCRIPTION PIPELINE ACTIVE</p><p id="lblSubTimeRemainingEnglish" class="text-sm font-bold font-mono text-slate-800 mt-2 tracking-wide"></p></div><div class="bg-gray-100 border border-gray-200 rounded-xl p-3.5 space-y-2 text-xs"><div class="flex justify-between"><span class="text-slate-500">Purchased Package:</span> <span id="lblTrackingPackPrice" class="font-bold text-slate-800">-</span></div><div class="flex justify-between"><span class="text-slate-500">Total Return Target:</span> <span id="lblTrackingPackReturn" class="font-bold text-emerald-600">-</span></div><div class="flex justify-between"><span class="text-slate-500">Daily Distribution Split:</span> <span id="lblTrackingPackSplit" class="font-bold text-purple-600">-</span></div></div><button onclick="closeSubscriptionModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-slate-800 font-bold py-2 rounded-lg text-xs uppercase tracking-wider heading-font border border-gray-200">Close Panel</button></div>
+            <div id="subPackagesSelectionFormLayout" class="space-y-4"><div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center"><p class="text-xs font-bold text-amber-600 uppercase tracking-wide"><i class="fas fa-certificate mr-1.5 animate-spin"></i> PROMO OFFER</p><p class="text-[11px] text-slate-600 mt-0.5 font-medium">Get a Free Premium Verified Badge instantly with any subscription, valid for the entire duration of your active pack!</p></div><p class="text-xs text-slate-500 font-medium leading-relaxed -mt-2">Select a data pipeline pack below to activate daily gold splits & automatic verified premium system badges.</p><div class="grid grid-cols-1 gap-3"><div class="gold-card p-3.5 rounded-xl flex justify-between items-center gap-4"><div><h4 class="heading-font font-bold text-sm text-slate-800 uppercase tracking-wide">Silver Operative Pack</h4><p class="text-[11px] text-slate-500 font-medium mt-0.5">Get ₹30.00 Daily split distribution for 7 Days</p></div><button onclick="selectTargetSubPackValue(200, 210, 7)" class="bg-gradient-to-r from-yellow-600 to-amber-600 text-white font-extrabold px-3 py-2 rounded-lg text-xs heading-font tracking-wide shrink-0">₹200</button></div><div class="gold-card p-3.5 rounded-xl flex justify-between items-center gap-4"><div><h4 class="heading-font font-bold text-sm text-yellow-600 uppercase tracking-wide">Gold Combatant Pack</h4><p class="text-[11px] text-slate-500 font-medium mt-0.5">Get ₹30.00 Daily split distribution for 15 Days</p></div><button onclick="selectTargetSubPackValue(400, 450, 15)" class="bg-gradient-to-r from-yellow-600 to-amber-600 text-white font-extrabold px-3 py-2 rounded-lg text-xs heading-font tracking-wide shrink-0">₹400</button></div><div class="gold-card p-3.5 rounded-xl flex justify-between items-center gap-4"><div><h4 class="heading-font font-bold text-sm text-purple-600 uppercase tracking-wide">Diamond Elite Pack</h4><p class="text-[11px] text-slate-500 font-medium mt-0.5">Get ₹30.00 Daily split distribution for 30 Days</p></div><button onclick="selectTargetSubPackValue(750, 900, 30)" class="bg-gradient-to-r from-yellow-600 to-amber-600 text-white font-extrabold px-3 py-2 rounded-lg text-xs heading-font tracking-wide shrink-0">₹750</button></div></div></div>
+            <div id="subGatewayQrFormLayout" class="hidden space-y-4 text-center"><div class="flex justify-between items-center border-b border-gray-200 pb-2"><button onclick="revertSubscriptionLayoutToMenu()" class="text-xs font-bold text-amber-600 hover:underline flex items-center gap-1"><i class="fas fa-arrow-left"></i> Back to Packs</button><span id="lblTargetSubBadgeDisplay" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 border border-amber-500/20 rounded font-bold uppercase heading-font">Pack</span></div><div class="bg-white p-2.5 rounded-xl inline-block shadow-inner mx-auto mt-2"><div id="subQrCanvasContainer" class="w-40 h-40 flex items-center justify-center bg-gray-100 text-slate-800 font-bold rounded"></div></div><p class="text-xs text-slate-600 px-2 leading-relaxed">Scan QR matrix using any UPI application. The required target payment value is autoassigned inside barcode protocols.</p><div class="text-left border-t border-gray-200 pt-3"><label class="block text-xs uppercase font-bold text-slate-500 mb-1">12-Digit Transaction UTR ID</label><input type="text" id="txtSubUtrInput" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="Enter 12 digit payment ID" maxlength="12"></div><button onclick="submitSubscriptionVerificationTransaction()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Submit Premium Verification</button></div>
+            <div id="subPendingReviewHoldStateBox" class="hidden text-center py-6 space-y-3"><div class="text-amber-500 text-4xl animate-bounce"><i class="fas fa-hourglass-half"></i></div><h4 class="heading-font text-sm font-bold text-slate-800 uppercase tracking-wider">ORDER REVIEW UNDERGOING VALIDATION</h4><p class="text-xs text-slate-500 px-4 leading-relaxed">Your subscription purchase request has been submitted to database nodes. Pipelines will automatically deploy verification badges and dividend splits as soon as the administrator reviews your transaction signature parameters.</p></div>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="mdlUserProfile" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-md glass-modal rounded-xl p-6 relative">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-slate-800 tracking-wide"><i class="fas fa-user-circle text-yellow-500 mr-2"></i> PROFILE </h3>
+                <button onclick="closeProfileModal()" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 space-y-1.5 text-xs">
+                    <div class="flex justify-between"><span class="text-slate-500">Account Name:</span> <span id="profName" class="font-bold text-slate-800">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Email ID Context:</span> <span id="profEmail" class="font-semibold text-slate-700">-</span></div>
+                    <div class="flex justify-between items-center pt-1 border-t border-gray-200 mt-1">
+                        <span class="text-slate-500 font-bold text-yellow-600"><i class="fas fa-gamepad mr-1"></i>Total Games Played:</span> 
+                        <span id="profTotalGames" class="bg-yellow-500/20 text-yellow-700 px-2 py-0.5 rounded font-extrabold text-sm tracking-wider">0</span>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 pt-3">
+                    <h4 class="heading-font text-xs font-bold text-slate-600 uppercase tracking-wider mb-2"><i class="fas fa-key text-purple-600 mr-1"></i>Modify Password</h4>
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-0.5">Old Password</label>
+                            <input type="password" id="txtProfOldPass" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="••••••••">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-0.5">New Password Security String</label>
+                            <input type="password" id="txtProfNewPass" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-purple-500 transition-colors" placeholder="••••••••">
+                        </div>
+                        <button onclick="executeUpdateProfilePassword()" class="w-full bg-purple-600/20 hover:bg-purple-600 text-purple-700 hover:text-white font-bold py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all border border-purple-500/30 heading-font">CHANGE PASSWORD</button>
+                    </div>
+                </div>
+                <div class="border-t border-gray-200 pt-3 flex gap-2">
+                    <button onclick="closeProfileModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-slate-800 font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Back </button>
+                    <button onclick="executeLogout(); closeProfileModal();" class="flex-1 bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font shadow-md flex items-center justify-center gap-1">
+                        <i class="fas fa-sign-out-alt"></i>  Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NO MATCH POPUP -->
+    <div id="mdlNoMatchPopup" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-sm glass-modal rounded-xl p-6 text-center space-y-4 border border-yellow-500/30">
+            <div class="text-yellow-500 text-4xl"><i class="fas fa-exclamation-circle"></i></div>
+            <h3 class="heading-font font-bold text-lg text-slate-800 tracking-wide">MATCH NOT AVAILABLE</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">There is no match left here, wait for the match.</p>
+            <button onclick="closeNoMatchPopup()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Close</button>
+        </div>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div id="mdlDeposit" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-md glass-modal rounded-xl p-6 relative">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-slate-800 tracking-wide"><i class="fas fa-wallet text-yellow-500 mr-2"></i>Fund Wallet</h3>
+                <button onclick="closeDepositModal()" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="depositGateFormLayout" class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Enter Deposit Amount (Min 10 INR)</label>
+                    <div class="relative">
+                        <input type="number" id="txtDepositAmount" class="w-full bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-12 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="100" min="10">
+                        <span class="absolute right-3 top-2.5 text-xs text-slate-500 font-bold">INR</span>
+                    </div>
+                    <p id="errDepositVal" class="hidden text-[11px] text-yellow-600 font-bold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Minimum payment requirement threshold is 10 INR.</p>
+                </div>
+                <button onclick="generateGatewayQR()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Generate Secure QR</button>
+            </div>
+            <div id="depositGateQRLayout" class="hidden text-center space-y-4 pt-2">
+                <div class="bg-white p-3 rounded-xl inline-block shadow-inner mx-auto">
+                    <div id="qrCanvasLocation" class="w-48 h-48 flex items-center justify-center bg-gray-100 text-slate-800 font-bold rounded text-xs text-center border-2 border-dashed border-gray-300">
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 px-2 leading-relaxed">Scan using any dynamic UPI application (Paytm, PhonePe, GPay). The payment value is auto-assigned inside the barcode matrix.</p>
+                <div class="text-left border-t border-gray-200 pt-3">
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">12-Digit Transaction UTR ID</label>
+                    <input type="text" id="txtDepositUtr" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="Enter 12 digit transaction ID" maxlength="12">
+                </div>
+                <button onclick="submitDepositTransaction()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Verify & Authorize Submission</button>
+            </div>
+            <div id="depositGateLockedState" class="hidden text-center py-6 space-y-3">
+                <div class="text-amber-500 text-4xl animate-pulse"><i class="fas fa-user-lock"></i></div>
+                <h4 class="heading-font text-sm font-bold text-slate-800 uppercase tracking-wider">Gateway State Locked</h4>
+                <p class="text-xs text-slate-600 px-4 leading-relaxed">You have an open confirmation transaction request undergoing validation review. Access to payment engines is restricted until an admin accepts or rejects the previous task.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- WITHDRAWAL MODAL -->
+    <div id="mdlWithdrawal" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-md glass-modal rounded-xl p-6 relative">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-slate-800 tracking-wide"><i class="fas fa-wallet text-emerald-500 mr-2"></i>Withdraw Win Revenue</h3>
+                <button onclick="closeWithdrawalModal()" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Available Win Allocation Pool</label>
+                    <p class="text-xl font-bold text-emerald-600">₹ <span id="lblWithdrawMaxPool">0.00</span> INR</p>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Target Payout Amount (INR) [Min 50]</label>
+                    <input type="number" id="txtWithdrawAmount" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors" placeholder="Minimum 50" min="50">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Receiving UPI ID Address</label>
+                    <input type="text" id="txtWithdrawUpi" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-emerald-500 transition-colors" placeholder="name@upi">
+                </div>
+                <button onclick="executeWithdrawalSubmission()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">File Withdrawal Order</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JOIN MATCH MODAL -->
+    <div id="mdlJoinMatch" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-md glass-modal rounded-xl p-6 relative">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-slate-800 tracking-wide"><i class="fas fa-door-open text-yellow-500 mr-2"></i>Join Slot Confirmation</h3>
+                <button onclick="closeJoinMatchModal()" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-gray-100 p-3 rounded-lg border border-gray-200 text-xs space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-500">Match Reference:</span> <span id="lblJoinMatchId" class="font-bold text-slate-800"></span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Allocated Slot Node:</span> <span id="lblChosenSlotMatrixNumberText" class="font-bold text-purple-600">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Entry Fare Deduction:</span> <span id="lblJoinMatchFee" class="font-bold text-yellow-600"></span></div>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase font-bold text-slate-500 mb-1">Free Fire In-Game Name (IGN)</label>
+                    <input type="text" id="txtPlayerIgn" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="Enter Exact IGN">
+                    <p class="text-[10px] text-slate-500 mt-1">This signature auto-saves. You can change it anytime prior to executing verification steps.</p>
+                </div>
+                <button onclick="executeMatchSlotBooking()" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all heading-font">Verify and Purchase Entry</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD MODAL -->
+    <div id="mdlLeaderboard" class="fixed inset-0 z-50 overflow-y-auto hidden flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div class="w-full max-w-lg glass-modal rounded-xl p-6 relative">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-base text-slate-800 tracking-wide"><i class="fas fa-podium text-emerald-500 mr-2"></i>Universal Leaderboard Sheet</h3>
+                <button onclick="closeLeaderboardModal()" class="text-slate-400 hover:text-slate-800 transition-colors"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-slate-500 uppercase font-bold">
+                            <th class="py-2 px-1">Rank</th>
+                            <th class="py-2 px-2">Player IGN</th>
+                            <th class="py-2 px-2 text-center">Kills</th>
+                            <th class="py-2 px-2 text-right">Earnings</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardRowsContainer" class="divide-y divide-gray-200 text-slate-700 font-medium">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- BANNED PLAYERS HUB (JOINED PLAYERS) -->
+    <div id="mdlBannedPlayersHub" class="fixed inset-0 z-50 overflow-y-auto hidden modal-backdrop flex items-center justify-center p-4">
+        <div class="w-full max-w-md modal-card glass-modal rounded-xl p-5 relative border border-yellow-500/20">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <h3 class="heading-font font-bold text-sm text-slate-800 tracking-wide"><i class="fas fa-users text-yellow-500 mr-2"></i>REGISTERED LOBBY SLOTS</h3>
+                <button onclick="closeJoinedPlayersModal()" class="text-slate-400 hover:text-slate-800 text-xl leading-5 transition-all"><i class="fas fa-times-circle"></i></button>
+            </div>
+            <div class="overflow-y-auto max-h-64 pr-1">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-gray-200 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
+                            <th class="py-2 px-1">Player IGN</th>
+                            <th class="py-2 px-2 text-right">Time Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody id="joinedPlayersListContainer" class="divide-y divide-gray-200 text-slate-700">
+                    </tbody>
+                </table>
+            </div>
+            <button onclick="closeJoinedPlayersModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-slate-800 font-bold py-2 rounded-lg text-xs uppercase mt-4 border border-gray-200 tracking-wider">Close List</button>
+        </div>
+    </div>
+
+    <!-- BAN INTERCEPTION OVERLAY -->
+    <div id="banInterceptionOverlay" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xl hidden flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white/95 border border-amber-500/30 rounded-2xl p-10 text-center space-y-6 shadow-2xl min-h-[480px] flex flex-col justify-between pulse-glow transform transition-all duration-300">
+            <div class="space-y-6 my-auto">
+                <div class="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center text-4xl mx-auto shadow-lg border border-red-500/20 animate-pulse">
+                    <i class="fas fa-user-slash"></i>
+                </div>
+                <h2 class="heading-font text-2xl font-extrabold text-slate-800 tracking-wider uppercase">Operative Account Suspended</h2>
+                <p class="text-sm text-slate-600 leading-relaxed font-semibold px-2">
+                    Your ID identity has been blocked by the administration. All operations, transactional channels, and registration systems are completely locked.
+                </p>
+            </div>
+            <div class="w-full pt-4">
+                <button onclick="triggerBanAppealHelp()" class="w-full bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-500 hover:to-yellow-500 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-widest heading-font transition-all shadow-md flex items-center justify-center gap-2 transform hover:-translate-y-0.5">
+                    <i class="fas fa-comment-alt-exclamation text-sm"></i> Help / Contact Support
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING SUPPORT BUTTON -->
+    <div id="floatingSupportButton" class="fixed bottom-6 right-6 z-50 select-none cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95" onclick="toggleHelpdeskWindow()">
+        <div class="bg-gradient-to-r from-purple-600 to-yellow-600 w-12 h-12 rounded-full flex items-center justify-center text-white shadow-xl relative border border-white/10">
+            <i class="fas fa-headset text-sm"></i>
+            <span id="chatUnreadCountBadge" class="absolute -top-1 -right-1 bg-yellow-500 text-black text-[9px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center border border-black hidden">0</span>
+        </div>
+    </div>
+
+    <!-- CHAT WINDOW -->
+    <div id="helpdeskChatWindow" class="fixed top-4 left-2 right-2 md:left-1/2 md:transform md:-translate-x-1/2 md:w-[600px] h-[360px] glass-modal rounded-xl shadow-2xl flex flex-col hidden border border-gray-200 transition-all duration-300 z-50">
+        <div class="bg-gray-100 p-3 rounded-t-xl border-b border-gray-200 flex justify-between items-center shrink-0">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase text-slate-800 tracking-wider heading-font">LIVE SUPPORT TEAM</span>
+                <span id="chatUserStatusLight" class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+            </div>
+            <button onclick="toggleHelpdeskWindow()" class="text-slate-500 hover:text-yellow-600 font-bold transition-colors text-xs uppercase heading-font tracking-wider px-2 py-1">Close</button>
+        </div>
+        <div id="chatGatekeepContainer" class="p-4 flex-1 flex flex-col justify-center text-center space-y-3 hidden bg-white">
+            <p class="text-xs text-slate-600 font-medium">Please enter your Email ID first to start the chat.</p>
+            <input type="email" id="txtChatGuestEmail" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-purple-500" placeholder="player@sme.com">
+            <button onclick="authorizeChatGuestAccess()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-1.5 rounded-lg text-xs uppercase tracking-wider heading-font">Connect Terminals</button>
+        </div>
+        <div id="chatMessagesStream" class="flex-1 p-3 overflow-y-auto space-y-2.5 text-xs bg-gray-50"></div>
+        <div id="chatControlsPanel" class="p-2 border-t border-gray-200 bg-gray-100 flex gap-1.5 shrink-0 rounded-b-xl">
+            <input type="text" id="txtChatMessageBody" class="flex-1 bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-yellow-500" placeholder="Type response...">
+            <button onclick="dispatchChatMessageToServer()" class="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded-lg text-xs transition-colors flex items-center justify-center"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- GLOBAL TOOLTIP -->
+    <div id="globalTooltip" class="tooltip-popup hidden">
+        <span id="tooltipMessage"></span>
+        <button onclick="closeTooltip()">✕</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAowYuI5H_BN9PhAMsrJu8RON_lp32iwOI",
+            authDomain: "saharaj-tournament-application.firebaseapp.com",
+            databaseURL: "https://saharaj-tournament-application-default-rtdb.firebaseio.com",
+            projectId: "saharaj-tournament-application",
+            storageBucket: "saharaj-tournament-application.firebasestorage.app"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let activeUserSession = null; 
+        let userProfileData = null;  
+        let selectedCategory = "clash_squad"; 
+        let globalMatchesMap = {};    
+        let activeChatListenerRef = null;
+        let isChatWindowOpen = false;
+        let adminUpiIdConfig = "admin@upi"; 
+        let chatUnreadCount = 0;
+        let currentLobbyCounters = { clash_squad: 0, classic_bermuda: 0, lone_wolf: 0, history_terminal: 0 };
+        let currentServerMaintenanceState = false;
+        
+        let withdrawalLockActive = false;
+        let depositLockActive = false;
+        let matchEndIntervals = {};
+
+        let selectedSubPackMetadata = null;
+        let activeUserSubStateData = null;
+
+        let selectedMatrixSlotIndex = null;
+        let slotMappingTargetMatchId = null;
+        let internalUserEarningsTrackRecordLog = {};
+
+        const defaultRulesets = {
+            clash_squad: "1. Match will be executed strictly inside Clash Squad Arenas.\n2. Use of alternative hack matrices or plugins will trigger permanent hardware block.\n3. Team leaders must declare accurate configurations inside lobby windows.",
+            classic_bermuda: "1. Classic Battle Royale format standard execution guidelines apply.\n2. Kill points rewards calculated via independent logging parameters.\n3. Safe zone progression speed operates under standard parameters.",
+            lone_wolf: "1. 1v1 or 2v2 targeted deployment matches.\n2. Tactical weaponry purchases permitted up to standard limits.\n3. Toxicity or network-tampering triggers automatic match forfeit.",
+            history_terminal: "Logs terminal tracking. Completed and expired data structures move into this section for 24-hour review before final purge execution takes place."
+        };
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            verifyLocalCachedSession();
+            synchronizeMasterSystemConfigurations();
+            listenToMaintenanceSystemNode();
+            initializeNetworkConnectivityEngine();
+            
+            window.visualViewport.addEventListener('resize', () => {
+                if (isChatWindowOpen && window.visualViewport) {
+                    const targetStream = document.getElementById('chatMessagesStream');
+                    if (targetStream) targetStream.scrollTop = targetStream.scrollHeight;
+                }
+            });
+        });
+
+        function initializeNetworkConnectivityEngine() {
+            function updateNetworkStatusIndicators() {
+                const networkOverlay = document.getElementById('networkInterruptionBlocker');
+                if (!navigator.onLine) {
+                    networkOverlay.classList.remove('hidden');
+                } else {
+                    if (navigator.connection && (navigator.connection.rtt > 4000 || navigator.connection.downlink < 0.1)) {
+                        networkOverlay.classList.remove('hidden');
+                    } else {
+                        networkOverlay.classList.add('hidden');
+                    }
+                }
+            }
+            window.addEventListener('online', updateNetworkStatusIndicators);
+            window.addEventListener('offline', updateNetworkStatusIndicators);
+            if (navigator.connection) {
+                navigator.connection.addEventListener('change', updateNetworkStatusIndicators);
+            }
+            setInterval(updateNetworkStatusIndicators, 3000);
+            updateNetworkStatusIndicators();
+        }
+
+        function listenToMaintenanceSystemNode() {
+            database.ref('system_settings/maintenance_mode').on('value', snapshot => {
+                currentServerMaintenanceState = snapshot.val() === true;
+                evaluateMaintenanceScreenStateEngine();
+                const label = document.getElementById('lblMaintStatusIndicator');
+                if (label) {
+                    label.innerText = currentServerMaintenanceState ? "ACTIVE (ON)" : "INACTIVE (OFF)";
+                    label.className = currentServerMaintenanceState ? "text-xs font-bold text-yellow-600" : "text-xs font-bold text-slate-600";
+                }
+            });
+        }
+
+        function toggleSystemMaintenanceModeState() {
+            if (!userProfileData || userProfileData.email !== 'admin@saharaj.com') return;
+            const targetState = !currentServerMaintenanceState;
+            database.ref('system_settings/maintenance_mode').set(targetState)
+                .then(() => {
+                    triggerSystemAlert("SYSTEM CONFIG UPDATED", `Maintenance mode status matrix assigned to ${targetState}`);
+                });
+        }
+
+        function evaluateMaintenanceScreenStateEngine() {
+            const isUserAdmin = userProfileData && userProfileData.email === 'admin@saharaj.com';
+            const overlay = document.getElementById('maintenanceOverlayBlock');
+            if (currentServerMaintenanceState && !isUserAdmin) {
+                overlay.classList.remove('hidden');
+                document.getElementById('appWorkspace').classList.add('hidden');
+                document.getElementById('authContainer').classList.add('hidden');
+                closeCategoryOverlay();
+            } else {
+                overlay.classList.add('hidden');
+                if (activeUserSession) {
+                    document.getElementById('appWorkspace').classList.remove('hidden');
+                    document.getElementById('authContainer').classList.add('hidden');
+                } else {
+                    document.getElementById('authContainer').classList.remove('hidden');
+                    document.getElementById('appWorkspace').classList.add('hidden');
+                    closeCategoryOverlay();
+                }
+            }
+        }
+
+        function verifyLocalCachedSession() {
+            const cachedId = localStorage.getItem('saharaj_uid');
+            if (cachedId) {
+                establishActiveUserContext(cachedId);
+            } else {
+                displayAuthView(true);
+            }
+        }
+
+        function toggleAuthViews(showLogin) {
+            document.getElementById('loginFormBlock').classList.toggle('hidden', !showLogin);
+            document.getElementById('registerFormBlock').classList.toggle('hidden', showLogin);
+        }
+
+        function displayAuthView(show) {
+            if (show) {
+                document.getElementById('authContainer').classList.remove('hidden');
+                document.getElementById('appWorkspace').classList.add('hidden');
+                terminateRealtimeChatListeners();
+            } else {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('appWorkspace').classList.remove('hidden');
+            }
+            evaluateMaintenanceScreenStateEngine();
+        }
+
+        function executeRegistration() {
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+
+            if (!name || !email || !phone || !pass) {
+                triggerSystemAlert("VALIDATION ERROR", "All input registration form configurations must be complete.");
+                return;
+            }
+
+            const simulatedUid = "USR_" + btoa(email).replace(/=/g, "").substring(0, 10);
+            
+            database.ref('users/' + simulatedUid).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    triggerSystemAlert("REGISTRATION FAILED", "Email registry configuration already deployed inside this cluster.");
+                } else {
+                    const payload = {
+                        uid: simulatedUid,
+                        username: name,
+                        email: email,
+                        phone: phone,
+                        password: pass,
+                        isVerified: false,
+                        isBanned: false,
+                        depositBalance: 0,
+                        winBalance: 0,
+                        ign: "",
+                        regTimestamp: Date.now()
+                    };
+                    
+                    database.ref('users/' + simulatedUid).set(payload)
+                        .then(() => {
+                            triggerSystemAlert("PROFILE CREATED", "Account created successfully! Now please login to continue.");
+                            toggleAuthViews(true);
+                            document.getElementById('regName').value = "";
+                            document.getElementById('regEmail').value = "";
+                            document.getElementById('regPhone').value = "";
+                            document.getElementById('regPass').value = "";
+                        })
+                        .catch(err => triggerSystemAlert("SERVER EXCEPTION", err.message));
+                }
+            });
+        }
+
+        function executeLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            if (!email || !pass) {
+                triggerSystemAlert("INPUT REQUIREMENT", "Email and Password cannot be left empty.");
+                return;
+            }
+
+            const lookupUid = "USR_" + btoa(email).replace(/=/g, "").substring(0, 10);
+
+            database.ref('users/' + lookupUid).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data.password === pass) {
+                        localStorage.setItem('saharaj_uid', data.uid);
+                        establishActiveUserContext(data.uid);
+                        document.getElementById('loginEmail').value = "";
+                        document.getElementById('loginPass').value = "";
+                    } else {
+                        triggerSystemAlert("AUTH EXCEPTION", "Invalid matching credentials mapping. Check password string parameters.");
+                    }
+                } else {
+                    triggerSystemAlert("ACCOUNT ACCESS DENIED", "No profile signature configuration maps to this record.");
+                }
+            });
+        }
+
+        function executeLogout() {
+            localStorage.removeItem('saharaj_uid');
+            activeUserSession = null;
+            userProfileData = null;
+            
+            const btnMaint = document.getElementById('btnAdminMaintenanceToggleConsole');
+            if (btnMaint) btnMaint.classList.add('hidden');
+            document.getElementById('lblAdminAccessBadge').classList.add('hidden');
+            
+            closeCategoryOverlay();
+            displayAuthView(true);
+        }
+
+        function setupWinBalanceListener() {
+            if (!activeUserSession) return;
+            database.ref('users/' + activeUserSession + '/winBalance').on('value', snap => {
+                if (snap.exists()) {
+                    const newBalance = parseFloat(snap.val() || 0).toFixed(2);
+                    document.getElementById('lblWinBalance').innerText = newBalance;
+                    if (document.getElementById('lblWithdrawMaxPool')) {
+                        document.getElementById('lblWithdrawMaxPool').innerText = newBalance;
+                    }
+                }
+            });
+            database.ref('users/' + activeUserSession + '/depositBalance').on('value', snap => {
+                if (snap.exists()) {
+                    document.getElementById('lblDepositBalance').innerText = parseFloat(snap.val() || 0).toFixed(2);
+                }
+            });
+        }
+
+        function checkPendingRequests() {
+            if (!activeUserSession) return;
+            
+            database.ref('withdrawals').orderByChild('uid').equalTo(activeUserSession).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    let activeFound = false;
+                    Object.entries(snapshot.val()).forEach(([id, w]) => {
+                        if (w.status === 'pending') {
+                            withdrawalLockActive = true;
+                            pendingWithdrawId = id;
+                            activeFound = true;
+                            showPendingState('withdraw', id, w.unixTimestamp);
+                        }
+                    });
+                    if(!activeFound) hidePendingState('withdraw');
+                } else {
+                    hidePendingState('withdraw');
+                }
+            });
+            
+            database.ref('deposits').orderByChild('uid').equalTo(activeUserSession).once('value', snapshot => {
+                if (snapshot.exists()) {
+                    let activeFound = false;
+                    Object.entries(snapshot.val()).forEach(([id, d]) => {
+                        if (d.status === 'pending') {
+                            depositLockActive = true;
+                            pendingDepositId = id;
+                            activeFound = true;
+                            showPendingState('deposit', id, d.timestamp);
+                        }
+                    });
+                    if(!activeFound) hidePendingState('deposit');
+                } else {
+                    hidePendingState('deposit');
+                }
+            });
+        }
+        
+        function showPendingState(type, requestId, timestamp) {
+            const wrapper = document.getElementById(`${type}BtnBlurWrapper`);
+            const pendingInfo = document.getElementById(`${type}PendingInfo`);
+            if (!wrapper || !pendingInfo) return;
+            
+            wrapper.classList.add('pending-blur-target');
+            pendingInfo.classList.remove('hidden');
+            pendingInfo.innerHTML = `
+                <span class="pending-text">⏳ PENDING</span>
+                <span class="countdown-timer" id="${type}Countdown"></span>
+            `;
+            startCountdown(type, timestamp);
+        }
+        
+        function hidePendingState(type) {
+            const wrapper = document.getElementById(`${type}BtnBlurWrapper`);
+            const pendingInfo = document.getElementById(`${type}PendingInfo`);
+            if (wrapper) wrapper.classList.remove('pending-blur-target');
+            if (pendingInfo) {
+                pendingInfo.classList.add('hidden');
+                pendingInfo.innerHTML = '';
+            }
+            if (window[`${type}Interval`]) clearInterval(window[`${type}Interval`]);
+            if (type === 'withdraw') withdrawalLockActive = false;
+            if (type === 'deposit') depositLockActive = false;
+        }
+        
+        function startCountdown(type, startTime) {
+            if (window[`${type}Interval`]) clearInterval(window[`${type}Interval`]);
+            const expiryTime = startTime + (48 * 60 * 60 * 1000);
+            
+            const interval = setInterval(() => {
+                const countdownEl = document.getElementById(`${type}Countdown`);
+                const remaining = expiryTime - Date.now();
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    if (countdownEl) countdownEl.innerText = 'Expired';
+                    if (type === 'withdraw' && pendingWithdrawId) {
+                        database.ref('withdrawals/' + pendingWithdrawId).remove();
+                    }
+                    if (type === 'deposit' && pendingDepositId) {
+                        database.ref('deposits/' + pendingDepositId).remove();
+                    }
+                    hidePendingState(type);
+                } else {
+                    if (countdownEl) {
+                        const hours = Math.floor(remaining / (1000 * 60 * 60));
+                        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                        countdownEl.innerText = `Auto-cancel: ${hours}h ${minutes}m`;
+                    }
+                }
+            }, 1000);
+            window[`${type}Interval`] = interval;
+        }
+
+        function showTooltip(message) {
+            const tooltip = document.getElementById('globalTooltip');
+            if(!tooltip) return;
+            document.getElementById('tooltipMessage').innerText = message;
+            tooltip.classList.remove('hidden');
+        }
+        
+        function closeTooltip() {
+            const tooltip = document.getElementById('globalTooltip');
+            if(tooltip) tooltip.classList.add('hidden');
+        }
+
+        function establishActiveUserContext(uid) {
+            activeUserSession = uid;
+            
+            database.ref('users/' + uid).on('value', snapshot => {
+                if (!snapshot.exists()) {
+                    executeLogout();
+                    return;
+                }
+                
+                userProfileData = snapshot.val();
+                
+                if (userProfileData.isBanned) {
+                    document.getElementById('banInterceptionOverlay').classList.remove('hidden');
+                    document.getElementById('appWorkspace').classList.add('hidden');
+                    closeCategoryOverlay();
+                    initializeRealtimeChatStream(userProfileData.uid, true);
+                    return;
+                } else {
+                    document.getElementById('banInterceptionOverlay').classList.add('hidden');
+                }
+
+                const btnMaint = document.getElementById('btnAdminMaintenanceToggleConsole');
+                if (userProfileData.email === 'admin@saharaj.com') {
+                    if (btnMaint) btnMaint.classList.remove('hidden');
+                    document.getElementById('lblAdminAccessBadge').classList.remove('hidden');
+                } else {
+                    if (btnMaint) btnMaint.classList.add('hidden');
+                    document.getElementById('lblAdminAccessBadge').classList.add('hidden');
+                }
+
+                displayAuthView(false);
+                renderUserHeaderTelemetry();
+                if (!isChatWindowOpen) {
+                    initializeRealtimeChatStream(userProfileData.uid, false);
+                }
+                
+                setupWinBalanceListener();
+                checkPendingRequests();
+                synchronizeUserSubscriptionRealtimeEngine();
+                updateCategoryCounters();
+            });
+        }
+
+        database.ref('deposits').on('value', () => checkPendingRequests());
+        database.ref('withdrawals').on('value', () => checkPendingRequests());
+
+        function renderUserHeaderTelemetry() {
+            if (!userProfileData) return;
+            
+            document.getElementById('headerUserName').innerText = userProfileData.username;
+            document.getElementById('headerUserEmail').innerText = userProfileData.email;
+            document.getElementById('lblDepositBalance').innerText = parseFloat(userProfileData.depositBalance).toFixed(2);
+            document.getElementById('lblWinBalance').innerText = parseFloat(userProfileData.winBalance).toFixed(2);
+            
+            if (userProfileData.isVerified) {
+                document.getElementById('headerVerifiedBadge').classList.remove('hidden');
+            } else {
+                document.getElementById('headerVerifiedBadge').classList.add('hidden');
+            }
+        }
+
+        function synchronizeMasterSystemConfigurations() {
+            database.ref('system_marquee').on('value', snapshot => {
+                const config = snapshot.val();
+                if (config) {
+                    const textEl = document.getElementById('marqueeText');
+                    textEl.innerText = config.text || "Welcome to Garena Free Fire Max Tournament System Terminal.";
+                }
+            });
+
+            database.ref('system_settings/admin_upi').on('value', snapshot => {
+                if (snapshot.exists()) {
+                    adminUpiIdConfig = snapshot.val();
+                }
+            });
+        }
+
+        function synchronizeUserSubscriptionRealtimeEngine() {
+            if (!activeUserSession) return;
+
+            database.ref('subscriptions').orderByChild('uid').equalTo(activeUserSession).on('value', snapshot => {
+                activeUserSubStateData = null;
+                let pendingState = false;
+
+                if (snapshot.exists()) {
+                    const dataNode = snapshot.val();
+                    Object.keys(dataNode).forEach(k => {
+                        const subRecord = dataNode[k];
+                        if (subRecord.status === 'approved') {
+                            activeUserSubStateData = subRecord;
+                        } else if (subRecord.status === 'pending') {
+                            pendingState = true;
+                        }
+                    });
+                }
+
+                const lblStatus = document.getElementById('lblHeaderSubStatus');
+                const lblCountdown = document.getElementById('lblHeaderSubCountdown');
+
+                if (activeUserSubStateData) {
+                    lblStatus.innerText = "💎 SUBSCRIPTION ACTIVE";
+                    lblStatus.className = "heading-font font-bold text-xs text-yellow-600 uppercase tracking-wider animate-pulse";
+                    
+                    processSubscriptionDailyClaimPayoutEngine(activeUserSubStateData);
+                    
+                    const remainingTime = parseInt(activeUserSubStateData.expiryTimeStamp) - Date.now();
+                    if (remainingTime <= 0) {
+                        executeSubscriptionAutoPurgeSequence(activeUserSubStateData.subId);
+                    } else {
+                        const daysLeft = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+                        const hoursLeft = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                        lblCountdown.innerText = `${daysLeft}D : ${hoursLeft}H REMAINING`;
+                        lblCountdown.className = "text-[9px] text-emerald-600 font-extrabold block uppercase mt-0.5 tracking-wider";
+                    }
+                } else if (pendingState) {
+                    lblStatus.innerText = "💎 REVIEWING ORDER";
+                    lblStatus.className = "heading-font font-bold text-xs text-amber-600 uppercase tracking-wider animate-pulse";
+                    lblCountdown.innerText = "PENDING HOLD";
+                    lblCountdown.className = "text-[9px] text-slate-500 font-bold block uppercase mt-0.5";
+                } else {
+                    lblStatus.innerText = "💎 SUBSCRIPTION";
+                    lblStatus.className = "heading-font font-bold text-xs text-yellow-600 uppercase tracking-wider group-hover:text-yellow-700 transition-colors";
+                    lblCountdown.innerText = "VIEW PACKS";
+                    lblCountdown.className = "text-[9px] text-slate-500 font-semibold block uppercase mt-0.5 tracking-tighter";
+                }
+            });
+        }
+
+        function processSubscriptionDailyClaimPayoutEngine(subObj) {
+            const now = Date.now();
+            const totalDays = parseInt(subObj.daysTotal);
+            const dailySplitValue = parseFloat(subObj.dailyPayoutSplitAmount || 30);
+            
+            let lastClaim = parseInt(subObj.lastClaimTimeStamp || subObj.approvedTimeStamp || subObj.timestamp);
+            const delta24h = 24 * 60 * 60 * 1000;
+            let currentClaimedCount = parseInt(subObj.claimsExecutedCount || 0);
+
+            if (currentClaimedCount === 0) {
+                database.ref('users/' + subObj.uid + '/winBalance').transaction(currentBal => {
+                    return (parseFloat(currentBal || 0) + dailySplitValue);
+                }, (txErr, txCommitted) => {
+                    if (txCommitted) {
+                        database.ref('subscriptions/' + subObj.subId).update({
+                            lastClaimTimeStamp: now,
+                            claimsExecutedCount: 1
+                        }).then(() => {
+                            triggerSystemAlert("DAY 1 BONUS RELEASED", "Instant allocation of ₹30.00 processed safely into win balance registers.");
+                        });
+                    }
+                });
+                return;
+            }
+
+            if (now - lastClaim >= delta24h && currentClaimedCount < totalDays) {
+                const multiDaysMissed = Math.floor((now - lastClaim) / delta24h);
+                const allowedPayoutDays = Math.min(multiDaysMissed, totalDays - currentClaimedCount);
+
+                if (allowedPayoutDays > 0) {
+                    const finalAccumulatedPayout = dailySplitValue * allowedPayoutDays;
+                    const absoluteNextClaimsCounter = currentClaimedCount + allowedPayoutDays;
+                    const finalComputedClaimStamp = lastClaim + (allowedPayoutDays * delta24h);
+
+                    database.ref('users/' + subObj.uid + '/winBalance').transaction(currentBal => {
+                        return (parseFloat(currentBal || 0) + finalAccumulatedPayout);
+                    }, (txErr, txCommitted) => {
+                        if (txCommitted) {
+                            database.ref('subscriptions/' + subObj.subId).update({
+                                lastClaimTimeStamp: finalComputedClaimStamp,
+                                claimsExecutedCount: absoluteNextClaimsCounter
+                            }).then(() => {
+                                triggerSystemAlert("OFFLINE SPLIT AUTO-CREDIT", `₹${finalAccumulatedPayout.toFixed(2)} synchronized successfully from passive cron nodes.`);
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        function executeSubscriptionAutoPurgeSequence(subId) {
+            database.ref('users/' + activeUserSession + '/isVerified').set(false);
+            database.ref('subscriptions/' + subId).remove().then(() => {
+                triggerSystemAlert("SUBSCRIPTION EXPIRED", "Your premium data subscription timeline has concluded.");
+            });
+        }
+
+        function openSubscriptionModal() {
+            document.getElementById('mdlSubscriptionTerminal').classList.remove('hidden');
+            evaluateSubscriptionPopupViewRoutingState();
+        }
+
+        function closeSubscriptionModal() {
+            document.getElementById('mdlSubscriptionTerminal').classList.add('hidden');
+        }
+
+        function evaluateSubscriptionPopupViewRoutingState() {
+            const liveTrackingBox = document.getElementById('subLiveTrackingStateBox');
+            const menuSelectionBox = document.getElementById('subPackagesSelectionFormLayout');
+            const qrGatewayBox = document.getElementById('subGatewayQrFormLayout');
+            const pendingHoldBox = document.getElementById('subPendingReviewHoldStateBox');
+
+            liveTrackingBox.classList.add('hidden');
+            menuSelectionBox.classList.add('hidden');
+            qrGatewayBox.classList.add('hidden');
+            pendingHoldBox.classList.add('hidden');
+
+            if (activeUserSubStateData) {
+                liveTrackingBox.classList.remove('hidden');
+                
+                const diff = parseInt(activeUserSubStateData.expiryTimeStamp) - Date.now();
+                const d = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+                const h = Math.max(0, Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                const m = Math.max(0, Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)));
+                
+                document.getElementById('lblSubTimeRemainingEnglish').innerText = `Time Remaining: ${d} Days, ${h} Hours, ${m} Minutes`;
+                document.getElementById('lblTrackingPackPrice').innerText = `₹ ${activeUserSubStateData.packPrice}.00`;
+                document.getElementById('lblTrackingPackReturn').innerText = `₹ ${activeUserSubStateData.totalReturnTarget}.00`;
+                document.getElementById('lblTrackingPackSplit').innerText = `₹ ${parseFloat(activeUserSubStateData.dailyPayoutSplitAmount).toFixed(2)} / Day`;
+            } else {
+                database.ref('subscriptions').orderByChild('uid').equalTo(activeUserSession).once('value', snapshot => {
+                    let isPending = false;
+                    if (snapshot.exists()) {
+                        Object.keys(snapshot.val()).forEach(k => {
+                            if (snapshot.val()[k].status === 'pending') isPending = true;
+                        });
+                    }
+                    if (isPending) {
+                        pendingHoldBox.classList.remove('hidden');
+                    } else {
+                        menuSelectionBox.classList.remove('hidden');
+                    }
+                });
+            }
+        }
+
+        function selectTargetSubPackValue(price, returnVal, days) {
+            selectedSubPackMetadata = { price, returnVal, days };
+            document.getElementById('lblTargetSubBadgeDisplay').innerText = `VAL: ₹${price}`;
+            
+            const payeeUpi = adminUpiIdConfig;
+            const merchantName = "PREMIUM SUBSCRIPTION ENGINE";
+            const upiString = `upi://pay?pa=${encodeURIComponent(payeeUpi)}&pn=${encodeURIComponent(merchantName)}&am=${price}&cu=INR`;
+            const qrWorkingApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiString)}&margin=10`;
+
+            const qrContainer = document.getElementById('subQrCanvasContainer');
+            qrContainer.innerHTML = `<img src="${qrWorkingApiUrl}" alt="Secure Subscription QR Matrix" class="w-full h-full object-contain rounded border border-gray-300" />`;
+
+            document.getElementById('subPackagesSelectionFormLayout').classList.add('hidden');
+            document.getElementById('subGatewayQrFormLayout').classList.remove('hidden');
+        }
+
+        function revertSubscriptionLayoutToMenu() {
+            selectedSubPackMetadata = null;
+            document.getElementById('txtSubUtrInput').value = "";
+            evaluateSubscriptionPopupViewRoutingState();
+        }
+
+        function submitSubscriptionVerificationTransaction() {
+            const utrStr = document.getElementById('txtSubUtrInput').value.trim();
+            if (utrStr.length !== 12 || isNaN(Number(utrStr))) {
+                triggerSystemAlert("UTR INVALIDATION", "Subscription identification values must be complete 12 digit structure.");
+                return;
+            }
+
+            const subTrackingId = "SUB_TX_" + Date.now();
+            const subPayloadRecord = {
+                subId: subTrackingId,
+                uid: activeUserSession,
+                username: userProfileData.username,
+                packPrice: selectedSubPackMetadata.price,
+                totalReturnTarget: selectedSubPackMetadata.returnVal,
+                daysTotal: selectedSubPackMetadata.days,
+                dailyPayoutSplitAmount: 30,
+                utr: utrStr,
+                status: "pending",
+                claimsExecutedCount: 0,
+                timestamp: Date.now()
+            };
+
+            database.ref('subscriptions/' + subTrackingId).set(subPayloadRecord)
+                .then(() => {
+                    triggerSystemAlert("SUBSCRIPTION REQUEST LOGGED", "Verification pipeline order routed successfully to validation blocks.");
+                    document.getElementById('txtSubUtrInput').value = "";
+                    selectedSubPackMetadata = null;
+                    evaluateSubscriptionPopupViewRoutingState();
+                })
+                .catch(err => triggerSystemAlert("SERVER EXCEPTION", err.message));
+        }
+
+        function openProfileModal() {
+            if (!userProfileData) return;
+            document.getElementById('profName').innerText = userProfileData.username;
+            document.getElementById('profEmail').innerText = userProfileData.email;
+            
+            let totalGamesPlayedCount = 0;
+            if (globalMatchesMap) {
+                Object.keys(globalMatchesMap).forEach(mId => {
+                    const match = globalMatchesMap[mId];
+                    if (match.participants && match.participants[activeUserSession]) {
+                        totalGamesPlayedCount++;
+                    }
+                });
+            }
+            document.getElementById('profTotalGames').innerText = totalGamesPlayedCount;
+            document.getElementById('txtProfOldPass').value = "";
+            document.getElementById('txtProfNewPass').value = "";
+            document.getElementById('mdlUserProfile').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('mdlUserProfile').classList.add('hidden');
+        }
+
+        function executeUpdateProfilePassword() {
+            const oldPass = document.getElementById('txtProfOldPass').value.trim();
+            const textNewPass = document.getElementById('txtProfNewPass').value.trim();
+
+            if (!oldPass || !textNewPass) {
+                triggerSystemAlert("VALIDATION FAULT", "Both input token mapping authentication boundaries must be typed.");
+                return;
+            }
+            if (oldPass !== userProfileData.password) {
+                triggerSystemAlert("AUTH EXCEPTION", "The old password typed doesn't map correctly to database fields.");
+                return;
+            }
+
+            database.ref('users/' + activeUserSession + '/password').set(textNewPass)
+                .then(() => {
+                    triggerSystemAlert("SUCCESS SECURE", "Password configurations overwritten successfully inside records.");
+                    closeProfileModal();
+                })
+                .catch(err => triggerSystemAlert("SERVER REFUSE", err.message));
+        }
+
+        function openCategoryOverlay(catId) {
+            selectedCategory = catId;
+            const overlay = document.getElementById('categoryOverlay');
+            const titleMap = {
+                clash_squad: 'CLASH SQUAD MATRICES',
+                classic_bermuda: 'CLASSIC BERMUDA ARENAS',
+                lone_wolf: 'LONE WOLF OPERATIVE CONTRACTS',
+                history_terminal: 'MATCH HISTORY LOGS'
+            };
+            document.getElementById('overlayTitle').innerText = titleMap[catId] || 'ACTIVE LOBBIES';
+            
+            const container = document.getElementById('categoryMatchListContainer');
+            container.innerHTML = '';
+            const now = Date.now();
+            
+            let processedMatchesList = [];
+            
+            Object.keys(globalMatchesMap).forEach(mId => {
+                const match = globalMatchesMap[mId];
+                if (catId === 'history_terminal') {
+                    if (match.category !== 'history_terminal') return;
+                    if (!match.participants || !match.participants[activeUserSession]) return;
+                } else {
+                    if (match.category !== catId) return;
+                }
+                
+                const isJoined = match.participants && match.participants[activeUserSession] ? true : false;
+                processedMatchesList.push({ mId, match, isJoined });
+            });
+            
+            processedMatchesList.sort((a, b) => (b.isJoined - a.isJoined));
+            
+            processedMatchesList.forEach(({ mId, match, isJoined }) => {
+                const currentParticipantsMap = match.participants || {};
+                const totalPlayersJoined = Object.keys(currentParticipantsMap).length;
+                
+                const mode = match.gameMode || 'Solo';
+                const configuredSlides = parseInt(match.maxSlots || match.slots || 48);
+                let customMultiplierFactor = 1;
+                if (mode === 'Duo') customMultiplierFactor = 2;
+                if (mode === '3v3') customMultiplierFactor = 3;
+                if (mode === 'Squad' || mode === '4v4') customMultiplierFactor = 4;
+                
+                const maxAllowedPlayersCalculatedLimit = configuredSlides * customMultiplierFactor;
+                const isCurrentlyMatchFullyBooked = totalPlayersJoined >= maxAllowedPlayersCalculatedLimit;
+                
+                const startTime = parseInt(match.startTimeStamp);
+                const isStarted = now >= startTime;
+                
+                const matchDiv = document.createElement('div');
+                matchDiv.className = 'match-list-item';
+                
+                if (isStarted) {
+                    matchDiv.className = 'match-list-item match-card-started';
+                    if (!isJoined) {
+                        matchDiv.style.opacity = '0.6';
+                        matchDiv.style.cursor = 'not-allowed';
+                        matchDiv.onclick = () => {
+                            triggerSystemAlert("MATCH STARTED", "This match has already started. You cannot join or view details.");
+                        };
+                    } else {
+                        matchDiv.onclick = () => openMatchDetailModal(mId);
+                    }
+                } else if (isCurrentlyMatchFullyBooked) {
+                    if (isJoined) {
+                        matchDiv.className = 'match-list-item match-card-open';
+                        matchDiv.onclick = () => openMatchDetailModal(mId);
+                    } else {
+                        matchDiv.className = 'match-list-item match-card-locked-full';
+                        matchDiv.onclick = (e) => {
+                            e.stopPropagation();
+                            triggerSystemAlert("MATCH FULL / LOCKED", "This room lobby has reached maximum playercount thresholds.");
+                        };
+                    }
+                } else {
+                    matchDiv.className = 'match-list-item match-card-open';
+                    matchDiv.onclick = () => openMatchDetailModal(mId);
+                }
+                
+                const availableSeatsRemainingCount = Math.max(0, maxAllowedPlayersCalculatedLimit - totalPlayersJoined);
+                const isMatchHistoryContextNode = (catId === 'history_terminal');
+                
+                let dynamicSlotTextString = `${availableSeatsRemainingCount} Seats Left`;
+                if (isCurrentlyMatchFullyBooked && !isMatchHistoryContextNode) {
+                    dynamicSlotTextString = `<span class="text-red-500 font-extrabold animate-pulse">LOCKED</span>`;
+                }
+
+                matchDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] bg-yellow-500/10 text-yellow-700 px-2 py-0.5 rounded uppercase font-bold border border-yellow-500/20">
+                                ${mode}
+                            </span>
+                            ${isCurrentlyMatchFullyBooked && !isMatchHistoryContextNode ? '<span class="text-[9px] bg-red-600 text-white font-black px-2 py-0.5 rounded uppercase border border-red-700 animate-pulse"><i class="fas fa-lock mr-1"></i>MATCH FULL / LOCKED</span>' : ''}
+                            ${isJoined ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-700 px-2 py-0.5 rounded font-bold"><i class="fas fa-check-circle mr-1"></i>Joined</span>' : ''}
+                            ${isStarted && !isJoined ? '<span class="text-[9px] bg-red-500/10 text-red-600 px-2 py-0.5 rounded font-bold"><i class="fas fa-lock mr-1"></i>Started</span>' : ''}
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[8px] text-slate-400 uppercase tracking-wider">MATCH ID</p>
+                            <p class="text-[10px] font-mono font-bold text-amber-600">${match.matchId || mId.slice(-6)}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-2 mb-3">
+                        <div class="text-center"><p class="text-[8px] text-slate-400 uppercase">Entry</p><p class="text-sm font-bold text-yellow-600">₹${parseFloat(match.entryFee || 0).toFixed(2)}</p></div>
+                        <div class="text-center"><p class="text-[8px] text-slate-400 uppercase">Pool</p><p class="text-sm font-bold text-emerald-600">₹${parseFloat(match.totalPrize || 0).toFixed(2)}</p></div>
+                        <div class="text-center">
+                            <p class="text-[8px] text-slate-400 uppercase">Slots Status</p>
+                            <p class="text-xs font-black text-purple-700 mt-0.5">${dynamicSlotTextString}</p>
+                            <p class="text-[8px] text-slate-400 font-medium tracking-tight mt-0.5">(Max: ${maxAllowedPlayersCalculatedLimit})</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-900 font-bold border-t border-gray-100 pt-2 text-xs">
+                        <span><i class="far fa-calendar-alt mr-1 text-slate-900"></i>${parseCustomTimestampToDateBadge(match.startTimeStamp)}</span>
+                        <span class="text-yellow-600 font-bold"><i class="fas fa-chevron-right"></i> Details</span>
+                    </div>
+                `;
+                container.appendChild(matchDiv);
+            });
+            
+            if (processedMatchesList.length === 0) {
+                container.innerHTML = `<div class="text-center py-12"><i class="fas fa-gamepad text-4xl text-gray-300 mb-3"></i><p class="text-slate-400 text-sm">No matches available in this category</p></div>`;
+            }
+            overlay.classList.add('active');
+        }
+        
+        function closeCategoryOverlay() {
+            document.getElementById('categoryOverlay').classList.remove('active');
+        }
+        
+        function updateCategoryCounters() {
+            const counters = { clash_squad: 0, classic_bermuda: 0, lone_wolf: 0, history_terminal: 0 };
+            Object.keys(globalMatchesMap).forEach(mId => {
+                const match = globalMatchesMap[mId];
+                if (match.category === 'history_terminal') {
+                    if (match.participants && match.participants[activeUserSession]) counters.history_terminal++;
+                } else if (counters[match.category] !== undefined) {
+                    counters[match.category]++;
+                }
+            });
+            for (let cat in counters) {
+                const el = document.getElementById('catCounter-' + cat);
+                if (el) el.innerText = counters[cat];
+            }
+        }
+
+        function formatTimeRemaining(ms) {
+            if (ms <= 0) return "Match Started";
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((ms % (1000 * 60)) / 1000);
+            
+            if (days > 0) return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            if (hours > 0) return `${hours}h ${minutes}m ${seconds}s`;
+            return `${minutes}m ${seconds}s`;
+        }
+        
+        function openMatchDetailModal(matchId) {
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+            
+            const now = Date.now();
+            const startTime = parseInt(match.startTimeStamp);
+            const isStarted = now >= startTime;
+            
+            const currentParticipantsMap = match.participants || {};
+            const totalPlayersJoined = Object.keys(currentParticipantsMap).length;
+            
+            const mode = match.gameMode || 'Solo';
+            const maxConfiguredSlides = parseInt(match.maxSlots || match.slots || 48);
+            
+            let customMultiplierFactor = 1;
+            if (mode === 'Duo') customMultiplierFactor = 2;
+            if (mode === '3v3') customMultiplierFactor = 3;
+            if (mode === 'Squad' || mode === '4v4') customMultiplierFactor = 4;
+            
+            const maxAllowedPlayersCalculatedLimit = maxConfiguredSlides * customMultiplierFactor;
+            const isJoined = currentParticipantsMap[activeUserSession] ? true : false;
+            const isFull = totalPlayersJoined >= maxAllowedPlayersCalculatedLimit;
+            
+            let joinButtonHtml = '';
+            let countdownTimerHtml = '';
+            
+            if (isStarted) {
+                joinButtonHtml = `<button class="w-full bg-gray-400 text-white font-bold py-3 rounded-lg text-sm uppercase cursor-not-allowed" disabled><i class="fas fa-ban mr-2"></i>Match Already Started</button>`;
+            } else if (isJoined) {
+                countdownTimerHtml = `
+                    <div class="bg-gray-100 p-4 rounded-xl text-center border border-gray-300">
+                        <p class="text-sm text-slate-900 font-extrabold uppercase tracking-wide">You have joined this match</p>
+                        <p class="text-xl font-mono font-extrabold text-black mt-2" id="matchCountdownTimer">--</p>
+                        <p class="text-xs text-slate-600 font-bold">until match starts</p>
+                    </div>
+                `;
+                startMatchCountdownImproved(startTime);
+            } else if (isFull) {
+                joinButtonHtml = `<button class="w-full bg-gray-400 text-white font-bold py-3 rounded-lg text-sm uppercase cursor-not-allowed" disabled><i class="fas fa-users-slash mr-2"></i>Lobby Full / Locked</button>`;
+            } else {
+                joinButtonHtml = `<button onclick="initiateMatchJoinProcessFlow('${matchId}')" class="w-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-500 hover:to-amber-500 text-white font-bold py-3 rounded-lg text-sm uppercase tracking-wider transition-all shadow-lg"><i class="fas fa-door-open mr-2"></i>Join Match Slot</button>`;
+            }
+            
+            const roomIdHtml = (match.roomID && isJoined) ? `
+                <div class="bg-gray-50 rounded-lg p-3 flex justify-between items-center border border-gray-200">
+                    <div><p class="text-[10px] text-slate-500 uppercase font-bold">ROOM ID</p><p id="modalRoomId" class="text-base font-mono font-bold text-amber-600">${match.roomID}</p></div>
+                    <button onclick="copyModalRoomData('modalRoomId', 'Room ID')" class="bg-gray-200 hover:bg-yellow-500 hover:text-white p-2 rounded-lg"><i class="fas fa-copy"></i></button>
+                </div>
+                <div class="bg-gray-50 rounded-lg p-3 flex justify-between items-center border border-gray-200">
+                    <div><p class="text-[10px] text-slate-500 uppercase font-bold">PASSWORD</p><p id="modalRoomPass" class="text-base font-mono font-bold text-amber-600">${match.roomPassword || 'N/A'}</p></div>
+                    <button onclick="copyModalRoomData('modalRoomPass', 'Password')" class="bg-gray-200 hover:bg-yellow-500 hover:text-white p-2 rounded-lg"><i class="fas fa-copy"></i></button>
+                </div>
+            ` : (isJoined ? '<p class="text-xs text-amber-600 font-bold text-center">Room credentials will appear 5 minutes before match start</p>' : '<p class="text-xs text-slate-500 text-center font-semibold">Join the match to see room credentials</p>');
+            
+            if(matchEndIntervals[matchId]) clearInterval(matchEndIntervals[matchId]);
+            
+            let adminActionNodePanelHtml = '';
+            if (userProfileData && userProfileData.email === 'admin@saharaj.com') {
+                adminActionNodePanelHtml = `
+                    <div class="bg-purple-50 border border-purple-200 p-3.5 rounded-xl space-y-2 mt-2">
+                        <p class="text-xs font-bold text-purple-800 uppercase tracking-wider heading-font"><i class="fas fa-shield-alt mr-1"></i> Admin Matrix Terminal Control</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="executeAdminDirectMatchCancellation('${matchId}')" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded-lg text-xs uppercase transition-all tracking-wider"><i class="fas fa-trash-alt mr-1"></i> Cancel & Refund</button>
+                            ${match.category !== 'history_terminal' ? `<button onclick="executeAdminManualHistoryShift('${matchId}')" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-lg text-xs uppercase transition-all tracking-wider"><i class="fas fa-history mr-1"></i> Move to History</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const content = `
+                <div class="space-y-4">
+                    ${adminActionNodePanelHtml}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-gradient-to-br from-yellow-500/5 to-amber-500/5 rounded-xl p-4 text-center border border-yellow-500/20">
+                            <p class="text-xs text-slate-500 uppercase font-bold">Entry Fee</p>
+                            <p class="text-2xl font-extrabold text-yellow-600">₹${parseFloat(match.entryFee || 0).toFixed(2)}</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-xl p-4 text-center border border-emerald-500/20">
+                            <p class="text-xs text-slate-500 uppercase font-bold">Total Prize</p>
+                            <p class="text-2xl font-extrabold text-emerald-600">₹${parseFloat(match.totalPrize || 0).toFixed(2)}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-gray-50 rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase font-bold">Per Kill</p><p class="text-base font-extrabold text-purple-600">₹${parseFloat(match.perKillReward || 0).toFixed(2)}</p></div>
+                        <div class="bg-gray-50 rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase font-bold">Players Count</p><p class="text-base font-extrabold text-amber-600">${totalPlayersJoined}/${maxAllowedPlayersCalculatedLimit}</p></div>
+                        <div class="bg-gray-50 rounded-lg p-3"><p class="text-[10px] text-slate-500 uppercase font-bold">Game Mode</p><p class="text-base font-extrabold text-slate-800">${mode}</p></div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center border border-gray-100 flex flex-col justify-center items-center gap-1">
+                        <p class="text-[10px] text-slate-500 uppercase font-bold">Match Start Time & Matrix Duration</p>
+                        <p class="text-base font-extrabold text-black">${parseCustomTimestampToDateBadge(match.startTimeStamp)}</p>
+                        <div class="text-xs font-bold text-red-600 mt-1 uppercase tracking-wider" id="lblLiveMatchEndsCountdownContainer">
+                            Match ends in: <span class="font-mono text-sm font-extrabold ml-1" id="lblLiveMatchEndsTimerToken">Calculating...</span>
+                        </div>
+                    </div>
+                    ${roomIdHtml}
+                    ${countdownTimerHtml}
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="openLeaderboardModal('${matchId}');" class="gold-card py-2.5 text-yellow-600 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1"><i class="fas fa-trophy"></i> Prize</button>
+                        <button onclick="openJoinedPlayersModal('${matchId}');" class="gold-card py-2.5 text-slate-600 rounded-lg text-xs font-extrabold uppercase tracking-wider"><i class="fas fa-users"></i> Players</button>
+                        <button onclick="openRulesFromMatch('${match.category}')" class="gold-card py-2.5 text-purple-600 rounded-lg text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-1"><i class="fas fa-gavel"></i> Rules</button>
+                    </div>
+                    ${joinButtonHtml}
+                </div>
+            `;
+            
+            document.getElementById('matchDetailModalContent').innerHTML = content;
+            document.getElementById('matchDetailModal').classList.remove('hidden');
+            
+            const matchDurationDelta = 60 * 60 * 1000;
+            const matchEndTimeStamp = startTime + matchDurationDelta;
+            
+            matchEndIntervals[matchId] = setInterval(() => {
+                const token = document.getElementById('lblLiveMatchEndsTimerToken');
+                if(!token) { clearInterval(matchEndIntervals[matchId]); return; }
+                const diff = matchEndTimeStamp - Date.now();
+                if(diff <= 0) {
+                    token.innerText = "Terminated";
+                    clearInterval(matchEndIntervals[matchId]);
+                } else {
+                    const h = Math.floor(diff / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    
+                    if (h > 0) {
+                        token.innerText = `${h}h ${m}m ${s}s`;
+                    } else {
+                        token.innerText = `${m}m ${s}s`;
+                    }
+                }
+            }, 1000);
+        }
+        
+        let matchCountdownInterval = null;
+        function startMatchCountdownImproved(targetTime) {
+            if(matchCountdownInterval) clearInterval(matchCountdownInterval);
+            matchCountdownInterval = setInterval(() => {
+                const remaining = targetTime - Date.now();
+                const timerElement = document.getElementById('matchCountdownTimer');
+                if(!timerElement) { if(matchCountdownInterval) clearInterval(matchCountdownInterval); return; }
+                if(remaining <= 0) {
+                    if(matchCountdownInterval) clearInterval(matchCountdownInterval);
+                    timerElement.innerText = "Match Started";
+                    return;
+                }
+                timerElement.innerText = formatTimeRemaining(remaining);
+            }, 1000);
+        }
+        
+        function openRulesFromMatch(categoryKey) {
+            database.ref('rulesets/' + categoryKey).once('value', snapshot => {
+                let rulesText = defaultRulesets[categoryKey] || "Standard match procedures apply.";
+                if (snapshot.exists() && snapshot.val()) {
+                    rulesText = snapshot.val();
+                }
+                document.getElementById('rulesModalContent').innerHTML = rulesText.replace(/\n/g, '<br>');
+                const modal = document.getElementById('rulesModal');
+                modal.classList.remove('hidden');
+                modal.querySelector('.modal-card').classList.add('rules-effect');
+                setTimeout(() => {
+                    modal.querySelector('.modal-card').classList.remove('rules-effect');
+                }, 300);
+            });
+        }
+        
+        function closeRulesModal() {
+            document.getElementById('rulesModal').classList.add('hidden');
+        }
+        
+        function closeMatchDetailModal() {
+            document.getElementById('matchDetailModal').classList.add('hidden');
+        }
+        
+        function copyModalRoomData(elementId, label) {
+            const text = document.getElementById(elementId).innerText;
+            if (text && text !== 'N/A') {
+                navigator.clipboard.writeText(text);
+                triggerSystemAlert('COPIED', `${label} copied to clipboard`);
+            }
+        }
+
+        function openNoMatchPopup() {
+            document.getElementById('mdlNoMatchPopup').classList.remove('hidden');
+        }
+
+        function closeNoMatchPopup() {
+            document.getElementById('mdlNoMatchPopup').classList.add('hidden');
+        }
+
+        database.ref('matches').on('value', snapshot => {
+            globalMatchesMap = snapshot.val() || {};
+            processSystemLobbyTickUpdates();
+            updateCategoryCounters();
+            if (document.getElementById('categoryOverlay').classList.contains('active')) {
+                openCategoryOverlay(selectedCategory);
+            }
+            if (slotMappingTargetMatchId && !document.getElementById('mdlLobbySlotSelectionMatrixBoard').classList.contains('hidden')) {
+                openSlotSelectionMatrixBoardModal(slotMappingTargetMatchId);
+            }
+            processUniversalEarningsRealtimeSyncEngine();
+        });
+
+        function processUniversalEarningsRealtimeSyncEngine() {
+            if (!activeUserSession || !globalMatchesMap) return;
+            
+            Object.keys(globalMatchesMap).forEach(mId => {
+                const matchObj = globalMatchesMap[mId];
+                if (matchObj.participants && matchObj.participants[activeUserSession]) {
+                    const userDataBlock = matchObj.participants[activeUserSession];
+                    const rawEarningsValue = parseFloat(userDataBlock.payoutAmount || 0);
+                    
+                    if (rawEarningsValue > 0) {
+                        const trackingUniqueCompositeKey = `${mId}_${activeUserSession}`;
+                        
+                        database.ref(`users/${activeUserSession}/claimedMatches/${trackingUniqueCompositeKey}`).once('value', (snapshot) => {
+                            if (!snapshot.exists()) {
+                                database.ref(`users/${activeUserSession}/claimedMatches/${trackingUniqueCompositeKey}`).set(true)
+                                .then(() => {
+                                    database.ref(`users/${activeUserSession}/winBalance`).transaction(currentWinPoolBalance => {
+                                        return (parseFloat(currentWinPoolBalance || 0) + rawEarningsValue);
+                                    }, (txErr, txCommitted) => {
+                                        if (txCommitted) {
+                                            triggerSystemAlert("EARNINGS SYNCHRONIZED", `₹${rawEarningsValue.toFixed(2)} from Match ID ${matchObj.matchId || mId.slice(-6)} credited into win balance wallet.`);
+                                        } else {
+                                            database.ref(`users/${activeUserSession}/claimedMatches/${trackingUniqueCompositeKey}`).remove();
+                                        }
+                                    });
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function processSystemLobbyTickUpdates() {
+            currentLobbyCounters = { clash_squad: 0, classic_bermuda: 0, lone_wolf: 0, history_terminal: 0 };
+            const indicators = { clash_squad: false, classic_bermuda: false, lone_wolf: false };
+            const now = Date.now();
+            
+            let activePrestartMatchesList = [];
+
+            Object.keys(globalMatchesMap).forEach(mId => {
+                const match = globalMatchesMap[mId];
+                const startTime = parseInt(match.startTimeStamp);
+                const expiryThreshold = startTime + (5 * 60 * 1000); 
+
+                if (match.category === 'history_terminal') {
+                    if (match.participants && match.participants[activeUserSession]) {
+                        currentLobbyCounters.history_terminal++;
+                    }
+                } else {
+                    if (currentLobbyCounters[match.category] !== undefined) {
+                        currentLobbyCounters[match.category]++;
+                        if (match.isActive) {
+                            indicators[match.category] = true;
+                        }
+                    }
+                    if (match.participants && match.participants[activeUserSession]) {
+                        const deltaMinutes = (startTime - now) / (60 * 1000);
+                        if (deltaMinutes > 0 && deltaMinutes <= 5) {
+                            activePrestartMatchesList.push(match);
+                        }
+                    }
+                }
+            });
+
+            ['clash_squad', 'classic_bermuda', 'lone_wolf', 'history_terminal'].forEach(id => {
+                const el = document.getElementById('catCounter-' + id);
+                if (el) el.innerText = currentLobbyCounters[id];
+            });
+
+            ['clash_squad', 'classic_bermuda', 'lone_wolf'].forEach(id => {
+                const el = document.getElementById('catIndicator-' + id);
+                if (el) el.classList.toggle('hidden', !indicators[id]);
+            });
+
+            const alertPanel = document.getElementById('fiveMinuteAlertPanel');
+            const selectorArea = document.getElementById('boxMultiLobbySelectorArea');
+            const btnContainer = document.getElementById('containerMultiLobbyButtons');
+
+            if (activePrestartMatchesList.length > 0) {
+                alertPanel.classList.remove('hidden');
+                alertPanel.classList.add('flex');
+
+                if (activePrestartMatchesList.length > 1) {
+                    selectorArea.classList.remove('hidden');
+                    btnContainer.innerHTML = "";
+                    
+                    activePrestartMatchesList.forEach(m => {
+                        const btn = document.createElement('button');
+                        btn.className = "bg-yellow-600 hover:bg-yellow-500 text-white font-extrabold px-2.5 py-1 text-xs rounded uppercase tracking-wider font-mono border border-black transition-all";
+                        btn.innerText = m.category.replace('_', ' ') + ` (${m.gameMode || 'Solo'})`;
+                        btn.onclick = () => {
+                            document.getElementById('lblHiddenRoomId').innerText = m.roomID || "WAITING...";
+                            document.getElementById('lblHiddenRoomPass').innerText = m.roomPassword || "WAITING...";
+                        };
+                        btnContainer.appendChild(btn);
+                    });
+                } else {
+                    selectorArea.classList.add('hidden');
+                    const singleMatch = activePrestartMatchesList[0];
+                    document.getElementById('lblHiddenRoomId').innerText = singleMatch.roomID || "WAITING...";
+                    document.getElementById('lblHiddenRoomPass').innerText = singleMatch.roomPassword || "WAITING...";
+                }
+            } else {
+                alertPanel.classList.add('hidden');
+                alertPanel.classList.remove('flex');
+            }
+        }
+
+        function copyStringDataToClipboard(elementId, labelName) {
+            const dataStr = document.getElementById(elementId).innerText;
+            if(dataStr === "-" || dataStr.includes("WAITING")) return;
+            navigator.clipboard.writeText(dataStr).then(() => {
+                triggerSystemAlert("COPIED SUCCESS", `${labelName} copied safely to device clipboard.`);
+            });
+        }
+
+        function parseCustomTimestampToDateBadge(timestamp) {
+            if(!timestamp) return "N/A TIME";
+            const dateObj = new Date(parseInt(timestamp));
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            
+            const year = dateObj.getFullYear();
+            const month = months[dateObj.getMonth()];
+            const day = dateObj.getDate().toString().padStart(2, '0');
+            
+            let hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            
+            return `${day}-${month}-${year} 🟢 ${hours}:${minutes} ${ampm}`;
+        }
+
+        function initiateMatchJoinProcessFlow(matchId) {
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            if (match.verifiedOnlyRequired === true && (!userProfileData || userProfileData.isVerified !== true)) {
+                triggerSystemAlert("RESTRICTED ACCESS", "This premium room node requires a Verified system profile badge to join.");
+                return;
+            }
+
+            slotMappingTargetMatchId = matchId;
+
+            if (match.slotSelectionSystemActive !== false) {
+                closeMatchDetailModal();
+                openSlotSelectionMatrixBoardModal(matchId);
+            } else {
+                selectedMatrixSlotIndex = null; 
+                closeMatchDetailModal();
+                openJoinMatchModal(matchId);
+            }
+        }
+
+        function openSlotSelectionMatrixBoardModal(matchId) {
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            selectedMatrixSlotIndex = null;
+            const gridArea = document.getElementById('slotNodesGridAreaDisplay');
+            gridArea.innerHTML = '';
+
+            const participantsMap = match.participants || {};
+            const totalSlidesCountMax = parseInt(match.maxSlots || match.slots || 48);
+            const mode = match.gameMode || 'Solo';
+
+            let seatDensityMaxFactorLimit = 1;
+            if (mode === 'Duo') seatDensityMaxFactorLimit = 2;
+            if (mode === '3v3') seatDensityMaxFactorLimit = 3;
+            if (mode === 'Squad' || mode === '4v4') seatDensityMaxFactorLimit = 4;
+
+            let structuralSlotsMapLog = {};
+            for (let s = 1; s <= totalSlidesCountMax; s++) { structuralSlotsMapLog[s] = []; }
+
+            Object.values(participantsMap).forEach(p => {
+                if (p.allocatedSlotNo) {
+                    if (!structuralSlotsMapLog[p.allocatedSlotNo]) structuralSlotsMapLog[p.allocatedSlotNo] = [];
+                    structuralSlotsMapLog[p.allocatedSlotNo].push(p);
+                }
+            });
+
+            const isAdmin = userProfileData && userProfileData.email === 'admin@saharaj.com';
+
+            for (let s = 1; s <= totalSlidesCountMax; s++) {
+                const occupantsList = structuralSlotsMapLog[s];
+                const seatsOccupiedCounter = occupantsList.length;
+                const isFullyBookedNode = seatsOccupiedCounter >= seatDensityMaxFactorLimit;
+
+                const nodeCell = document.createElement('div');
+                nodeCell.id = `slotMatrixCellNodeToken-${s}`;
+
+                let cellInternalNamesHtml = '';
+                occupantsList.forEach(occ => {
+                    let tickIconBadge = occ.userVerifiedState === true ? ' <i class="fas fa-check-circle text-blue-500 text-[10px] ml-0.5"></i>' : '';
+                    let kickBtnHtml = isAdmin ? ` <button onclick="event.stopPropagation(); executeAdminKickSlotPlayer('${matchId}', '${occ.uid}', ${s})" class="text-[9px] bg-red-500 text-white font-bold px-1 rounded hover:bg-red-600 transition-colors ml-1">Kick</button>` : '';
+                    cellInternalNamesHtml += `<div class="text-[10px] font-mono text-slate-800 tracking-tighter truncate w-full mt-0.5 text-center flex items-center justify-center">${occ.ign || 'Operant'}${tickIconBadge}${kickBtnHtml}</div>`;
+                });
+
+                if (isFullyBookedNode) {
+                    nodeCell.className = "slot-node-cell occupied-locked text-slate-400 font-medium p-2 border border-gray-300 rounded text-center flex flex-col justify-between items-center bg-gray-100 shadow-sm";
+                    nodeCell.innerHTML = `
+                        <div class="font-extrabold text-[10px] text-red-500 heading-font flex items-center gap-0.5"><i class="fas fa-lock text-[9px]"></i> Slot ${s}</div>
+                        <div class="w-full flex flex-col items-center my-0.5">${cellInternalNamesHtml}</div>
+                        <div class="text-[8px] text-red-600 font-bold tracking-wider uppercase bg-red-50 px-1 py-0.5 rounded border border-red-100">🔒 FULL</div>
+                    `;
+                } else {
+                    nodeCell.className = "slot-node-cell cursor-pointer text-slate-800 font-bold bg-white hover:bg-amber-50 p-2 border border-gray-200 rounded text-center flex flex-col justify-between items-center shadow-sm";
+                    nodeCell.innerHTML = `
+                        <div class="heading-font text-[11px] text-slate-700 font-bold"># Slot ${s}</div>
+                        <div class="w-full flex flex-col items-center my-0.5">${cellInternalNamesHtml || '<span class="text-slate-400 text-[9px] font-normal">[ Vacant ]</span>'}</div>
+                        <div class="text-[8px] text-emerald-600 font-black bg-emerald-50 px-1 py-0.5 rounded border border-emerald-100 uppercase">${seatDensityMaxFactorLimit - seatsOccupiedCounter} OPEN</div>
+                    `;
+                    nodeCell.onclick = () => selectLobbySlotCellNodeMatrix(s);
+                }
+                gridArea.appendChild(nodeCell);
+            }
+
+            document.getElementById('mdlLobbySlotSelectionMatrixBoard').classList.remove('hidden');
+        }
+
+        function selectLobbySlotCellNodeMatrix(slotIndex) {
+            document.querySelectorAll('.slot-node-cell').forEach(c => {
+                if (!c.classList.contains('occupied-locked')) { c.classList.remove('selected'); }
+            });
+            const cell = document.getElementById(`slotMatrixCellNodeToken-${slotIndex}`);
+            if (cell) {
+                cell.classList.add('selected');
+                selectedMatrixSlotIndex = slotIndex;
+            }
+        }
+
+        function proceedFromSlotBoardToIgnForm() {
+            if (!selectedMatrixSlotIndex) {
+                triggerSystemAlert("SLOT SELECTION MANDATORY", "Please choose an active matrix slot seat from the grid display table node.");
+                return;
+            }
+            document.getElementById('mdlLobbySlotSelectionMatrixBoard').classList.add('hidden');
+            openJoinMatchModal(slotMappingTargetMatchId);
+        }
+
+        function closeSlotSelectionMatrixBoardModal() {
+            document.getElementById('mdlLobbySlotSelectionMatrixBoard').classList.add('hidden');
+            slotMappingTargetMatchId = null;
+            selectedMatrixSlotIndex = null;
+        }
+
+        function openJoinedPlayersModal(matchId) {
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            const tbody = document.getElementById('joinedPlayersListContainer');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const participantsMap = match.participants || {};
+            const keys = Object.keys(participantsMap).sort((a,b) => participantsMap[a].timestampJoined - participantsMap[b].timestampJoined);
+
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="2" class="py-4 text-center text-slate-500 font-medium">No active operant signatures locked inside this lobby yet.</td></tr>`;
+            } else {
+                keys.forEach((k) => {
+                    const p = participantsMap[k];
+                    const formatTime = p.timestampJoined ? new Date(p.timestampJoined).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "N/A";
+                    const slotNodeBadgeHtml = p.allocatedSlotNo ? ` <span class="text-purple-600 font-bold font-mono text-[10px] ml-1">[Slot #${p.allocatedSlotNo}]</span>` : '';
+                    
+                    database.ref('users/' + k + '/isVerified').once('value', vSnap => {
+                        const isVerifiedUser = vSnap.val() === true;
+                        const verifiedIcon = isVerifiedUser ? ' <i class="fas fa-check-circle text-blue-500 text-xs ml-0.5"></i>' : '';
+                        
+                        let row = document.createElement('tr');
+                        row.className = "border-b border-gray-200 hover:bg-gray-50 text-xs text-slate-900";
+                        row.innerHTML = `
+                            <td class="py-2.5 px-2 font-semibold font-mono tracking-wide text-left flex items-center">${p.ign || 'Unknown Operant'}${verifiedIcon}${slotNodeBadgeHtml}</td>
+                            <td class="py-2.5 px-2 text-right text-slate-500 font-medium">${formatTime}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                });
+            }
+            document.getElementById('mdlBannedPlayersHub').classList.remove('hidden');
+        }
+
+        function closeJoinedPlayersModal() {
+            document.getElementById('mdlBannedPlayersHub').classList.add('hidden');
+        }
+
+        function openLeaderboardModal(matchId) {
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            const tbody = document.getElementById('leaderboardRowsContainer');
+            if(!tbody) return;
+            tbody.innerHTML = "";
+
+            const participantsMap = match.participants || {};
+            const keys = Object.keys(participantsMap);
+
+            if (keys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500">No registered participant signatures found inside workspace.</td></tr>`;
+            } else {
+                const sortedPlayers = keys.map(k => participantsMap[k]).sort((a, b) => {
+                    let rA = parseInt(a.rank) || 999;
+                    let rB = parseInt(b.rank) || 999;
+                    return rA - rB;
+                });
+
+                sortedPlayers.forEach(p => {
+                    const slotNodeBadge = p.allocatedSlotNo ? ` <span class="text-purple-600 font-bold font-mono text-[10px]">[Slot #${p.allocatedSlotNo}]</span>` : '';
+                    const premiumCheckIcon = p.userVerifiedState === true ? ' <i class="fas fa-check-circle text-blue-500 text-[10px]"></i>' : '';
+
+                    let row = document.createElement('tr');
+                    row.className = "border-b border-gray-200 hover:bg-gray-50 transition-colors text-xs text-slate-900";
+                    row.innerHTML = `
+                        <td class="py-2 px-1 text-amber-600 font-bold">${p.rank || '-'}</td>
+                        <td class="py-2 px-2 font-semibold truncate max-w-[120px]">${p.ign || 'Unknown'}${premiumCheckIcon}${slotNodeBadge}</td>
+                        <td class="py-2 px-2 text-center text-slate-600">${p.killCount || 0}</td>
+                        <td class="py-2 px-2 text-right text-yellow-600 font-bold">₹ ${parseFloat(p.payoutAmount || 0).toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+            document.getElementById('mdlLeaderboard').classList.remove('hidden');
+        }
+
+        function closeLeaderboardModal() { document.getElementById('mdlLeaderboard').classList.add('hidden'); }
+
+        let temporaryActiveSelectedMatchJoinTargetId = null;
+
+        function openJoinMatchModal(matchId) {
+            const targetMatch = globalMatchesMap[matchId];
+            if (!targetMatch) return;
+
+            temporaryActiveSelectedMatchJoinTargetId = matchId;
+            document.getElementById('lblJoinMatchId').innerText = targetMatch.matchId || matchId;
+            document.getElementById('lblJoinMatchFee').innerText = "₹ " + parseFloat(targetMatch.entryFee).toFixed(2);
+            document.getElementById('lblChosenSlotMatrixNumberText').innerText = selectedMatrixSlotIndex ? `# Slot ${selectedMatrixSlotIndex}` : 'Direct System Allocation';
+            
+            const field = document.getElementById('txtPlayerIgn');
+            if (userProfileData && userProfileData.ign) {
+                field.value = userProfileData.ign;
+            } else {
+                field.value = "";
+            }
+            document.getElementById('mdlJoinMatch').classList.remove('hidden');
+        }
+
+        function closeJoinMatchModal() {
+            document.getElementById('mdlJoinMatch').classList.add('hidden');
+            temporaryActiveSelectedMatchJoinTargetId = null;
+        }
+
+        function executeMatchSlotBooking() {
+            const ignStr = document.getElementById('txtPlayerIgn').value.trim();
+            const targetId = temporaryActiveSelectedMatchJoinTargetId;
+            const match = globalMatchesMap[targetId];
+
+            if (!ignStr) {
+                triggerSystemAlert("IGN INPUT MANDATORY", "Free Fire identification values cannot be set empty.");
+                return;
+            }
+            if (!match) return;
+
+            const operationalFee = parseFloat(match.entryFee);
+            const currentDepositPool = parseFloat(userProfileData.depositBalance || 0);
+            const currentWinningPool = parseFloat(userProfileData.winBalance || 0);
+
+            let targetingWalletTargetNode = "depositBalance";
+
+            if (currentDepositPool < operationalFee) {
+                if (currentWinningPool >= operationalFee) {
+                    targetingWalletTargetNode = "winBalance";
+                } else {
+                    triggerSystemAlert("REVENUE EXHAUSTED", "Insufficient account metrics inside balance registers. Fuel the wallet.");
+                    return;
+                }
+            }
+
+            database.ref('matches/' + targetId).once('value', freshSnapshot => {
+                const freshMatch = freshSnapshot.val();
+                const currentParticipantsMap = freshMatch.participants || {};
+                const currentCount = Object.keys(currentParticipantsMap).length;
+                
+                const mode = freshMatch.gameMode || 'Solo';
+                const capacitySlidesMax = parseInt(freshMatch.maxSlots || freshMatch.slots || 48);
+                
+                let dynamicMultiplierFactor = 1;
+                if (mode === 'Duo') dynamicMultiplierFactor = 2;
+                if (mode === '3v3') dynamicMultiplierFactor = 3;
+                if (mode === 'Squad' || mode === '4v4') dynamicMultiplierFactor = 4;
+                
+                const calculatedMaxTotalAllowedLimit = capacitySlidesMax * dynamicMultiplierFactor;
+
+                if (currentCount >= calculatedMaxTotalAllowedLimit) {
+                    triggerSystemAlert("SLOT COLLISION", "Lobby space exhausted during operational execution loop runtime phase.");
+                    closeJoinMatchModal();
+                    return;
+                }
+
+                if (selectedMatrixSlotIndex) {
+                    let duplicates = 0;
+                    Object.values(currentParticipantsMap).forEach(p => {
+                        if (parseInt(p.allocatedSlotNo) === parseInt(selectedMatrixSlotIndex)) duplicates++;
+                    });
+
+                    if (duplicates >= dynamicMultiplierFactor) {
+                        triggerSystemAlert("SLOT SEAT OCCUPIED", "The targeted slot index space has filled up. Select an alternative node.");
+                        return;
+                    }
+                }
+
+                database.ref('users/' + activeUserSession + '/' + targetingWalletTargetNode).transaction(currentBalance => {
+                    if (currentBalance >= operationalFee) { return currentBalance - operationalFee; }
+                }, (txError, txCommitted) => {
+                    if (txCommitted) {
+                        database.ref('users/' + activeUserSession + '/ign').set(ignStr);
+                        
+                        const alignmentParticipantProfilePayload = {
+                            uid: activeUserSession,
+                            username: userProfileData.username,
+                            ign: ignStr,
+                            killCount: 0,
+                            payoutAmount: 0,
+                            rank: "Pending Evaluation",
+                            allocatedSlotNo: selectedMatrixSlotIndex || null,
+                            userVerifiedState: userProfileData.isVerified === true,
+                            paymentWalletSourceNode: targetingWalletTargetNode, 
+                            timestampJoined: Date.now() 
+                        };
+
+                        database.ref('matches/' + targetId + '/participants/' + activeUserSession).set(alignmentParticipantProfilePayload)
+                            .then(() => {
+                                triggerSystemAlert("MATCH HUB DEPLOYED", `Registration finalized safely via ${targetingWalletTargetNode.replace('Balance','')}.`);
+                                closeJoinMatchModal();
+                                updateCategoryCounters();
+                                if (document.getElementById('categoryOverlay').classList.contains('active')) {
+                                    openCategoryOverlay(selectedCategory);
+                                }
+                                const matchStartTime = freshMatch.startTimeStamp;
+                                if(matchStartTime) startMatchCountdownImproved(parseInt(matchStartTime));
+                            });
+                    } else {
+                        triggerSystemAlert("SECURITY TERMINAL REFUSE", "Financial balance validation operations aborted safely.");
+                    }
+                });
+            });
+        }
+
+        function executeAdminDirectMatchCancellation(matchId) {
+            if (!userProfileData || userProfileData.email !== 'admin@saharaj.com') return;
+            if (!confirm("Are you absolutely sure you want to cancel this tournament match node? All associated active participant players entry tickets will be fully processed and auto-refunded to their original wallet sources instantly!")) return;
+
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            const participantsMap = match.participants || {};
+            const ticketFee = parseFloat(match.entryFee || 0);
+
+            Object.keys(participantsMap).forEach(pUid => {
+                const playerObj = participantsMap[pUid];
+                let destinationNode = playerObj.paymentWalletSourceNode || "depositBalance";
+                
+                database.ref('users/' + pUid + '/' + destinationNode).transaction(curr => {
+                    return (parseFloat(curr || 0) + ticketFee);
+                });
+            });
+
+            setTimeout(() => {
+                database.ref('matches/' + matchId).remove()
+                .then(() => {
+                    closeMatchDetailModal();
+                    triggerSystemAlert("MATCH CANCELLED SUCCESS", "Lobby erased safely. Auto-refund pipelines successfully dispatched funds.");
+                });
+            }, 1200);
+        }
+
+        function executeAdminKickSlotPlayer(matchId, playerUid, slotNo) {
+            if (!userProfileData || userProfileData.email !== 'admin@saharaj.com') return;
+            if (!confirm(`Are you sure you want to kick this player from Slot #${slotNo}? Entry fare token balances will be instantly credited back into their original wallet storage node records.`)) return;
+
+            database.ref(`matches/${matchId}`).once('value', snapshot => {
+                if (!snapshot.exists()) return;
+                const match = snapshot.val();
+                const playerObj = match.participants ? match.participants[playerUid] : null;
+                if (!playerObj) return;
+
+                const ticketFee = parseFloat(match.entryFee || 0);
+                let targetedRefundNode = playerObj.paymentWalletSourceNode || "depositBalance";
+
+                database.ref(`users/${playerUid}/${targetedRefundNode}`).transaction(currentBal => {
+                    return (parseFloat(currentBal || 0) + ticketFee);
+                }, (txErr, txCommitted) => {
+                    if (txCommitted) {
+                        database.ref(`matches/${matchId}/participants/${playerUid}`).remove()
+                        .then(() => {
+                            triggerSystemAlert("PLAYER KICKED", `Slot #${slotNo} cleared. Fee successfully refunded back into player's wallet registry node.`);
+                            openSlotSelectionMatrixBoardModal(matchId);
+                        });
+                    } else {
+                        triggerSystemAlert("KICK FAILURE", "Transaction pipeline balance concurrency conflict aborted operations safely.");
+                    }
+                });
+            });
+        }
+
+        function executeAdminManualHistoryShift(matchId) {
+            if (!userProfileData || userProfileData.email !== 'admin@saharaj.com') return;
+            if (!confirm("Do you want to manually shift this dynamic lobby match entity right into the MATCH HISTORY TERMINAL category tree node layout now?")) return;
+
+            const match = globalMatchesMap[matchId];
+            if (!match) return;
+
+            const manualShiftHistoryNodePayload = { ...match, category: 'history_terminal' };
+            database.ref('matches/' + matchId).set(manualShiftHistoryNodePayload)
+            .then(() => {
+                closeMatchDetailModal();
+                triggerSystemAlert("HISTORY CONVERTED", "Match category converted manually into history analytics trees.");
+            });
+        }
+
+        function openRulesFromMatch(categoryKey) {
+            database.ref('rulesets/' + categoryKey).once('value', snapshot => {
+                let rulesText = defaultRulesets[categoryKey] || "Standard match procedures apply.";
+                if (snapshot.exists() && snapshot.val()) {
+                    rulesText = snapshot.val();
+                }
+                document.getElementById('rulesModalContent').innerHTML = rulesText.replace(/\n/g, '<br>');
+                const modal = document.getElementById('rulesModal');
+                modal.classList.remove('hidden');
+                modal.querySelector('.modal-card').classList.add('rules-effect');
+                setTimeout(() => {
+                    modal.querySelector('.modal-card').classList.remove('rules-effect');
+                }, 300);
+            });
+        }
+
+        function openRulesModal(categoryKey) {
+            database.ref('rulesets/' + categoryKey).once('value', snapshot => {
+                let displayRulesString = defaultRulesets[categoryKey] || "Standard match procedures apply.";
+                if (snapshot.exists() && snapshot.val()) {
+                    displayRulesString = snapshot.val();
+                }
+                document.getElementById('rulesContentBox').innerText = displayRulesString;
+                document.getElementById('mdlRules').classList.remove('hidden');
+            });
+        }
+
+        function toggleHelpdeskWindow() {
+            const win = document.getElementById('helpdeskChatWindow');
+            isChatWindowOpen = win.classList.contains('hidden');
+            
+            if (!isChatWindowOpen) {
+                win.classList.add('hidden');
+                terminateRealtimeChatListeners();
+                if (activeUserSession) {
+                    initializeRealtimeChatStream(activeUserSession, false);
+                }
+            } else {
+                win.classList.remove('hidden');
+                chatUnreadCount = 0;
+                updateChatBadgeUiDisplayElements();
+                evaluateChatInterfaceRoutingVerificationState();
+            }
+        }
+
+        function evaluateChatInterfaceRoutingVerificationState() {
+            const gate = document.getElementById('chatGatekeepContainer');
+            const stream = document.getElementById('chatMessagesStream');
+            const ctrl = document.getElementById('chatControlsPanel');
+            const statusLight = document.getElementById('chatUserStatusLight');
+
+            if (userProfileData) {
+                gate.classList.add('hidden');
+                stream.classList.remove('hidden');
+                ctrl.classList.remove('hidden');
+                
+                statusLight.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+                initializeRealtimeChatStream(userProfileData.uid, false);
+            } else {
+                const guestCacheEmailToken = sessionStorage.getItem('saharaj_chat_guest_email');
+                if (guestCacheEmailToken) {
+                    gate.classList.add('hidden');
+                    stream.classList.remove('hidden');
+                    ctrl.classList.remove('hidden');
+                    statusLight.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+                    initializeRealtimeChatStream("GST_" + btoa(guestCacheEmailToken).replace(/=/g, "").substring(0, 10), false);
+                } else {
+                    gate.classList.remove('hidden');
+                    stream.classList.add('hidden');
+                    ctrl.classList.add('hidden');
+                    statusLight.className = "w-2.5 h-2.5 rounded-full bg-slate-500";
+                }
+            }
+        }
+
+        function authorizeChatGuestAccess() {
+            const email = document.getElementById('txtChatGuestEmail').value.trim();
+            if (!email || !email.includes('@')) {
+                triggerSystemAlert("INPUT REJECTED", "Provide complete email data to connect messaging pipelines.");
+                return;
+            }
+            sessionStorage.setItem('saharaj_chat_guest_email', email);
+            evaluateChatInterfaceRoutingVerificationState();
+        }
+
+        function initializeRealtimeChatStream(chatNodeId, forceBannedRedState) {
+            terminateRealtimeChatListeners();
+
+            if (forceBannedRedState) {
+                const statusLight = document.getElementById('chatUserStatusLight');
+                if (statusLight) {
+                    statusLight.className = "w-2.5 h-2.5 rounded-full bg-red-600";
+                }
+            }
+
+            activeChatListenerRef = database.ref('chats/' + chatNodeId);
+            
+            activeChatListenerRef.on('value', snapshot => {
+                const streamBox = document.getElementById('chatMessagesStream');
+                if(!streamBox) return;
+                streamBox.innerHTML = "";
+                
+                const chatDataNode = snapshot.val() || {};
+                
+                if (!isChatWindowOpen && chatDataNode.messages) {
+                    chatUnreadCount++;
+                    updateChatBadgeUiDisplayElements();
+                    document.getElementById('tringAudio').play().catch(() => {});
+                }
+
+                if (userProfileData && !chatDataNode.metadata) {
+                    database.ref('chats/' + chatNodeId + '/metadata').set({
+                        username: userProfileData.username,
+                        email: userProfileData.email,
+                        uid: userProfileData.uid,
+                        statusIndicator: userProfileData.isBanned ? "RED" : "GREEN",
+                        lastActivityTimestamp: Date.now()
+                    });
+                }
+
+                const msgMap = chatDataNode.messages || {};
+                const keys = Object.keys(msgMap).sort((a,b) => msgMap[a].timestamp - msgMap[b].timestamp);
+
+                if (keys.length === 0) {
+                    streamBox.innerHTML = `<p class="text-center text-slate-500 py-8 italic">No message exchange logs inside Sme Robot chat systems.</p>`;
+                } else {
+                    keys.forEach(k => {
+                        const m = msgMap[k];
+                        const isAdmin = m.sender === 'admin';
+                        
+                        let msgBlock = document.createElement('div');
+                        msgBlock.className = `max-w-[85%] p-2 rounded-lg text-xs ${isAdmin ? 'bg-gray-200 text-slate-800 mr-auto rounded-tl-none' : 'bg-yellow-600 text-white ml-auto rounded-tr-none'}`;
+                        msgBlock.innerHTML = `
+                            <p class="font-medium">${m.body}</p>
+                            <span class="text-[8px] opacity-60 block text-right mt-1">${new Date(m.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        `;
+                        streamBox.appendChild(msgBlock);
+                    });
+                }
+                setTimeout(() => {
+                    streamBox.scrollTop = streamBox.scrollHeight;
+                }, 50);
+            });
+        }
+
+        function terminateRealtimeChatListeners() {
+            if (activeChatListenerRef) {
+                activeChatListenerRef.off('value');
+                activeChatListenerRef = null;
+            }
+        }
+
+        function updateChatBadgeUiDisplayElements() {
+            const badge = document.getElementById('chatUnreadCountBadge');
+            if(!badge) return;
+            if (chatUnreadCount > 0) {
+                badge.innerText = chatUnreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function dispatchChatMessageToServer() {
+            const input = document.getElementById('txtChatMessageBody');
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            const targetChatNodeId = userProfileData ? userProfileData.uid : ("GST_" + btoa(sessionStorage.getItem('saharaj_chat_guest_email')).replace(/=/g, "").substring(0, 10));
+            
+            const msgPayloadRecord = {
+                msgId: "MSG_" + Date.now(),
+                sender: "player",
+                body: txt,
+                timestamp: Date.now()
+            };
+
+            database.ref('chats/' + targetChatNodeId + '/messages/' + msgPayloadRecord.msgId).set(msgPayloadRecord)
+                .then(() => {
+                    input.value = "";
+                    database.ref('chats/' + targetChatNodeId + '/metadata/lastActivityTimestamp').set(Date.now());
+                });
+        }
+
+        function triggerBanAppealHelp() {
+            document.getElementById('banInterceptionOverlay').classList.add('hidden');
+            toggleHelpdeskWindow();
+        }
+
+        function triggerSystemAlert(title, message) {
+            const noti = document.getElementById('customNotification');
+            if(!noti) return;
+            document.getElementById('notiTitle').innerText = title.toUpperCase();
+            document.getElementById('notiMessage').innerText = message;
+            
+            noti.classList.remove('hidden');
+            setTimeout(closeNotification, 5000);
+        }
+
+        function closeNotification() {
+            const noti = document.getElementById('customNotification');
+            if (noti) noti.classList.add('hidden');
+        }
+
+        // DEPOSIT PROTOCOLS
+        function openDepositModal() {
+            if(depositLockActive) {
+                document.getElementById('depositGateFormLayout').classList.add('hidden');
+                document.getElementById('depositGateQRLayout').classList.add('hidden');
+                document.getElementById('depositGateLockedState').classList.remove('hidden');
+            } else {
+                document.getElementById('depositGateFormLayout').classList.remove('hidden');
+                document.getElementById('depositGateQRLayout').classList.add('hidden');
+                document.getElementById('depositGateLockedState').classList.add('hidden');
+                document.getElementById('txtDepositAmount').value = "";
+                document.getElementById('txtDepositUtr').value = "";
+            }
+            document.getElementById('mdlDeposit').classList.remove('hidden');
+        }
+        function closeDepositModal() { document.getElementById('mdlDeposit').classList.add('hidden'); }
+        function generateGatewayQR() {
+            const amt = parseFloat(document.getElementById('txtDepositAmount').value.trim());
+            if(!amt || amt < 10) {
+                document.getElementById('errDepositVal').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('errDepositVal').classList.add('hidden');
+            const upiStr = `upi://pay?pa=${encodeURIComponent(adminUpiIdConfig)}&pn=TOURNAMENT_FUNDS&am=${amt}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiStr)}&margin=10`;
+            document.getElementById('qrCanvasLocation').innerHTML = `<img src="${qrUrl}" class="w-full h-full object-contain" alt="Payment QR" />`;
+            document.getElementById('depositGateFormLayout').classList.add('hidden');
+            document.getElementById('depositGateQRLayout').classList.remove('hidden');
+        }
+        function submitDepositTransaction() {
+            const utr = document.getElementById('txtDepositUtr').value.trim();
+            const amt = parseFloat(document.getElementById('txtDepositAmount').value.trim());
+            if(utr.length !== 12 || isNaN(Number(utr))) {
+                triggerSystemAlert("UTR INVALID", "Please provide a valid 12-digit payment reference token.");
+                return;
+            }
+            const depId = "DEP_" + Date.now();
+            database.ref('deposits/' + depId).set({
+                id: depId, uid: activeUserSession, username: userProfileData.username,
+                amount: amt, utr: utr, status: 'pending', timestamp: Date.now()
+            }).then(() => {
+                triggerSystemAlert("SUCCESS LOGGED", "Deposit verification sent safely to administrative review checks.");
+                closeDepositModal();
+            });
+        }
+
+        // WITHDRAWAL PROTOCOLS
+        function openWithdrawalModal() {
+            if(withdrawalLockActive) {
+                triggerSystemAlert("GATEWAY LOCKED", "You currently have an active pending withdrawal signature in queue.");
+                return;
+            }
+            document.getElementById('lblWithdrawMaxPool').innerText = parseFloat(userProfileData.winBalance || 0).toFixed(2);
+            document.getElementById('txtWithdrawAmount').value = "";
+            document.getElementById('txtWithdrawUpi').value = "";
+            document.getElementById('mdlWithdrawal').classList.remove('hidden');
+        }
+        function closeWithdrawalModal() { document.getElementById('mdlWithdrawal').classList.add('hidden'); }
+        function executeWithdrawalSubmission() {
+            const amt = parseFloat(document.getElementById('txtWithdrawAmount').value.trim());
+            const upi = document.getElementById('txtWithdrawUpi').value.trim();
+            const currentWin = parseFloat(userProfileData.winBalance || 0);
+
+            if(!amt || amt < 50) { triggerSystemAlert("LIMIT ERROR", "Minimum withdrawal configuration limit is ₹50 INR."); return; }
+            if(amt > currentWin) { triggerSystemAlert("BALANCE FAULT", "The request amount parameters surpass available win balance pool."); return; }
+            if(!upi || !upi.includes('@')) { triggerSystemAlert("UPI INVALID", "Typed payout target identifier syntax is wrong."); return; }
+
+            const wId = "WIT_" + Date.now();
+            database.ref('withdrawals/' + wId).set({
+                id: wId, uid: activeUserSession, username: userProfileData.username,
+                amount: amt, upi: upi, status: 'pending', unixTimestamp: Date.now()
+            }).then(() => {
+                triggerSystemAlert("ORDER DISPATCHED", "Withdraw signature registered. Review procedures will process in 48 hours.");
+                closeWithdrawalModal();
+            });
+        }
+        
+        window.closeMatchDetailModal = closeMatchDetailModal;
+        window.copyModalRoomData = copyModalRoomData;
+        window.openCategoryOverlay = openCategoryOverlay;
+        window.closeCategoryOverlay = closeCategoryOverlay;
+        window.closeRulesModal = closeRulesModal;
+        window.openRulesFromMatch = openRulesFromMatch;
+        window.closeSubscriptionModal = closeSubscriptionModal;
+        window.closeProfileModal = closeProfileModal;
+        window.closeNoMatchPopup = closeNoMatchPopup;
+        window.closeDepositModal = closeDepositModal;
+        window.closeWithdrawalModal = closeWithdrawalModal;
+        window.closeJoinedPlayersModal = closeJoinedPlayersModal;
+        window.closeLeaderboardModal = closeLeaderboardModal;
+        window.closeJoinMatchModal = closeJoinMatchModal;
+        window.executeLogout = executeLogout;
+        window.toggleHelpdeskWindow = toggleHelpdeskWindow;
+        window.authorizeChatGuestAccess = authorizeChatGuestAccess;
+        window.dispatchChatMessageToServer = dispatchChatMessageToServer;
+        window.triggerBanAppealHelp = triggerBanAppealHelp;
+        window.openProfileModal = openProfileModal;
+        window.executeUpdateProfilePassword = executeUpdateProfilePassword;
+        window.openSubscriptionModal = openSubscriptionModal;
+        window.selectTargetSubPackValue = selectTargetSubPackValue;
+        window.revertSubscriptionLayoutToMenu = revertSubscriptionLayoutToMenu;
+        window.submitSubscriptionVerificationTransaction = submitSubscriptionVerificationTransaction;
+        window.openDepositModal = openDepositModal;
+        window.generateGatewayQR = generateGatewayQR;
+        window.submitDepositTransaction = submitDepositTransaction;
+        window.openWithdrawalModal = openWithdrawalModal;
+        window.executeWithdrawalSubmission = executeWithdrawalSubmission;
+        window.openJoinMatchModal = openJoinMatchModal;
+        window.executeMatchSlotBooking = executeMatchSlotBooking;
+        window.openRulesModal = openRulesModal;
+        window.openLeaderboardModal = openLeaderboardModal;
+        window.openJoinedPlayersModal = openJoinedPlayersModal;
+        window.toggleSystemMaintenanceModeState = toggleSystemMaintenanceModeState;
+        window.copyStringDataToClipboard = copyStringDataToClipboard;
+        window.closeTooltip = closeTooltip;
+
+        window.closeSlotSelectionMatrixBoardModal = closeSlotSelectionMatrixBoardModal;
+        window.proceedFromSlotBoardToIgnForm = proceedFromSlotBoardToIgnForm;
+        window.executeAdminDirectMatchCancellation = executeAdminDirectMatchCancellation;
+        window.executeAdminManualHistoryShift = executeAdminManualHistoryShift;
+        window.executeAdminKickSlotPlayer = executeAdminKickSlotPlayer;
+    </script>
+</body>
+</html>
